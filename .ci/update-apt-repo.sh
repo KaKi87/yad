@@ -5,7 +5,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 : "${DEB_VERSION:?DEB_VERSION must be set}"
 : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY must be set}"
-: "${GITHUB_SHA:?GITHUB_SHA must be set}"
 
 ARTIFACT_DIR="${ARTIFACT_DIR:-$ROOT_DIR/artifacts}"
 APT_WORKDIR="$(mktemp -d)"
@@ -34,25 +33,29 @@ fi
 cd "$APT_WORKDIR/repo"
 
 mkdir -p conf
-SIGN_WITH="!"
+SIGN_KEY_ID=""
 
 if [[ -n "${APT_REPO_GPG_PRIVATE_KEY:-}" ]]; then
   export GNUPGHOME="$APT_WORKDIR/gnupg"
   mkdir -p "$GNUPGHOME"
   chmod 700 "$GNUPGHOME"
   echo "$APT_REPO_GPG_PRIVATE_KEY" | gpg --batch --import
-  SIGN_WITH="$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')"
-  gpg --armor --export "$SIGN_WITH" > yad-apt.gpg.key
+  SIGN_KEY_ID="$(gpg --list-secret-keys --with-colons | awk -F: '/^sec:/ {print $5; exit}')"
+  gpg --armor --export "$SIGN_KEY_ID" > yad-apt.gpg.key
 fi
 
-cat > conf/distributions <<EOF
+{
+  cat <<EOF
 Codename: ${APT_CODENAME}
 Components: main
 Architectures: amd64 arm64 source
 Label: YAD APT Repository
 Description: YAD packages built from ${GITHUB_REPOSITORY}
-SignWith: ${SIGN_WITH}
 EOF
+  if [[ -n "$SIGN_KEY_ID" ]]; then
+    echo "SignWith: ${SIGN_KEY_ID}"
+  fi
+} > conf/distributions
 
 cat > conf/options <<'EOF'
 verbose
