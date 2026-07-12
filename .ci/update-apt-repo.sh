@@ -12,6 +12,7 @@ APT_BRANCH="${APT_BRANCH:-apt}"
 APT_CODENAME="${APT_CODENAME:-stable}"
 REPO_SLUG="${GITHUB_REPOSITORY##*/}"
 REPO_OWNER="${GITHUB_REPOSITORY%%/*}"
+APT_BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_SLUG}/refs/heads/${APT_BRANCH}"
 
 cleanup() {
   rm -rf "$APT_WORKDIR"
@@ -62,23 +63,18 @@ verbose
 basedir .
 EOF
 
-touch .nojekyll
+if [[ -f yad-apt.gpg.key ]]; then
+  APT_INSTALL="sudo mkdir -p /etc/apt/keyrings
+curl -fsSL ${APT_BASE_URL}/yad-apt.gpg.key | sudo tee /etc/apt/keyrings/yad-apt.gpg >/dev/null
+echo \"deb [signed-by=/etc/apt/keyrings/yad-apt.gpg] ${APT_BASE_URL} ${APT_CODENAME} main\" | sudo tee /etc/apt/sources.list.d/yad.list"
+else
+  APT_INSTALL="echo \"deb [trusted=yes] ${APT_BASE_URL} ${APT_CODENAME} main\" | sudo tee /etc/apt/sources.list.d/yad.list"
+fi
 
-if [[ ! -f README.md ]]; then
-  if [[ -f yad-apt.gpg.key ]]; then
-    APT_INSTALL="sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://${REPO_OWNER}.github.io/${REPO_SLUG}/yad-apt.gpg.key | sudo tee /etc/apt/keyrings/yad-apt.gpg >/dev/null
-echo \"deb [signed-by=/etc/apt/keyrings/yad-apt.gpg] https://${REPO_OWNER}.github.io/${REPO_SLUG} ${APT_CODENAME} main\" | sudo tee /etc/apt/sources.list.d/yad.list"
-  else
-    APT_INSTALL="echo \"deb [trusted=yes] https://${REPO_OWNER}.github.io/${REPO_SLUG} ${APT_CODENAME} main\" | sudo tee /etc/apt/sources.list.d/yad.list"
-  fi
-
-  cat > README.md <<EOF
+cat > README.md <<EOF
 # YAD APT repository
 
 Binary packages for YAD built automatically from commits on \`master\`.
-
-Enable GitHub Pages for the \`${APT_BRANCH}\` branch, then install with:
 
 \`\`\`sh
 ${APT_INSTALL}
@@ -86,7 +82,6 @@ sudo apt update
 sudo apt install yad
 \`\`\`
 EOF
-fi
 
 shopt -s nullglob
 debs=( "$ARTIFACT_DIR"/*.deb )
