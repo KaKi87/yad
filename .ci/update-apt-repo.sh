@@ -5,7 +5,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 : "${DEB_VERSION:?DEB_VERSION must be set}"
 : "${GITHUB_REPOSITORY:?GITHUB_REPOSITORY must be set}"
-: "${GITHUB_SHA:?GITHUB_SHA must be set}"
 
 ARTIFACT_DIR="${ARTIFACT_DIR:-$ROOT_DIR/artifacts}"
 APT_WORKDIR="$(mktemp -d)"
