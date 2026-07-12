@@ -91,6 +91,10 @@ if (( ${#debs[@]} == 0 )); then
 fi
 
 for deb in "${debs[@]}"; do
+  package="$(dpkg-deb -f "$deb" Package)"
+  arch="$(dpkg-deb -f "$deb" Architecture)"
+  # Allow CI re-runs to replace an existing version (same name, new build).
+  reprepro -b . -A "$arch" remove "$APT_CODENAME" "$package" 2>/dev/null || true
   reprepro -b . includedeb "$APT_CODENAME" "$deb"
 done
 
