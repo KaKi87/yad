@@ -53,13 +53,20 @@ jobs:
         run: .ci/set-version.sh
 
       - name: Build Debian package
+        env:
+          TARGET_ARCH: ${{ matrix.arch }}
         run: .ci/build-deb.sh
 
-      - name: Upload package artifact
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: yad-${{ matrix.arch }}
-          path: artifacts/*.deb
+          path: |
+            artifacts/*.deb
+            artifacts/yad-linux-*
+            artifacts/yad-tools-linux-*
+            artifacts/yad-icon-browser-linux-*
+            artifacts/yad-settings
           if-no-files-found: error
 
   release:
@@ -98,7 +105,12 @@ jobs:
           name: ${{ env.TITLE }}
           prerelease: true
           generate_release_notes: true
-          files: artifacts/*.deb
+          files: |
+            artifacts/*.deb
+            artifacts/yad-linux-*
+            artifacts/yad-tools-linux-*
+            artifacts/yad-icon-browser-linux-*
+            artifacts/yad-settings
 
   apt:
     name: Update APT repository
