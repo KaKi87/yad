@@ -1,0 +1,129 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf \
+            automake \
+            autotools-dev \
+            build-essential \
+            debhelper \
+            devscripts \
+            fakeroot \
+            gettext \
+            intltool \
+            libayatana-appindicator3-dev \
+            libgspell-1-dev \
+            libgtk-3-dev \
+            libgtksourceview-3.0-dev \
+            libwebkit2gtk-4.1-dev \
+            pkg-config
+
+      - name: Set package version
+        run: .ci/set-version.sh
+
+      - name: Build Debian package
+        run: .ci/build-deb.sh
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: yad-${{ matrix.arch }}
+          path: artifacts/*.deb
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: yad-*
+          merge-multiple: true
+
+      - name: Set release metadata
+        run: |
+          UPSTREAM_VERSION="$(grep '^AC_INIT' configure.ac | sed -E 's/^AC_INIT\(\[[^]]+\], \[([^]]+)\].*/\1/')"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          TAG="v${UPSTREAM_VERSION}+git.${SHORT_SHA}"
+          TITLE="YAD ${UPSTREAM_VERSION} (${SHORT_SHA})"
+          {
+            echo "UPSTREAM_VERSION=${UPSTREAM_VERSION}"
+            echo "DEB_VERSION=${UPSTREAM_VERSION}-1+git${SHORT_SHA}"
+            echo "TAG=${TAG}"
+            echo "TITLE=${TITLE}"
+          } >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: ${{ env.TITLE }}
+          prerelease: true
+          generate_release_notes: true
+          files: artifacts/*.deb
+
+  apt:
+    name: Update APT repository
+    needs: release
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: yad-*
+          merge-multiple: true
+
+      - name: Install APT repository tools
+        run: sudo apt-get update && sudo apt-get install -y reprepro gnupg
+
+      - name: Set package version
+        run: .ci/set-version.sh
+
+      - name: Update apt branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APT_REPO_GPG_PRIVATE_KEY: ${{ secrets.APT_REPO_GPG_PRIVATE_KEY }}
+        run: .ci/update-apt-repo.sh
