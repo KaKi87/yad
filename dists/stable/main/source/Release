@@ -1,0 +1,4 @@
+Component: main
+Label: YAD APT Repository
+Architecture: source
+Description: YAD packages built from KaKi87/yad

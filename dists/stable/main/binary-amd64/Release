@@ -1,0 +1,4 @@
+Component: main
+Label: YAD APT Repository
+Architecture: amd64
+Description: YAD packages built from KaKi87/yad
