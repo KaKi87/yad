@@ -1,3 +1,5 @@
+# Builds upstream source from master whenever that branch is synced.
+# Workflow and CI scripts live only on dev; dev must be the default branch.
 name: Release
 
 on:
@@ -5,13 +7,23 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Upstream branch or tag to build
+        required: false
+        default: master
+        type: string
 
 permissions:
   contents: write
 
 concurrency:
-  group: release-${{ github.sha }}
+  group: release-${{ github.event_name == 'workflow_dispatch' && format('manual-{0}', github.run_id) || github.sha }}
   cancel-in-progress: true
+
+env:
+  SOURCE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.source_ref || 'master' }}
+  CI_REF: dev
 
 jobs:
   build:
@@ -27,8 +39,17 @@ jobs:
             runner: ubuntu-24.04-arm
 
     steps:
-      - name: Checkout
+      - name: Checkout upstream source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_REF }}
+          fetch-depth: 1
+
+      - name: Import CI scripts from dev
+        run: |
+          git fetch --no-tags --depth=1 origin "${CI_REF}"
+          git checkout "origin/${CI_REF}" -- .ci
+          chmod +x .ci/*.sh
 
       - name: Install build dependencies
         run: |
@@ -76,8 +97,17 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout
+      - name: Checkout upstream source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_REF }}
+          fetch-depth: 1
+
+      - name: Import CI scripts from dev
+        run: |
+          git fetch --no-tags --depth=1 origin "${CI_REF}"
+          git checkout "origin/${CI_REF}" -- .ci
+          chmod +x .ci/*.sh
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -89,7 +119,7 @@ jobs:
       - name: Set release metadata
         run: |
           UPSTREAM_VERSION="$(grep '^AC_INIT' configure.ac | sed -E 's/^AC_INIT\(\[[^]]+\], \[([^]]+)\].*/\1/')"
-          SHORT_SHA="${GITHUB_SHA::7}"
+          SHORT_SHA="$(git rev-parse --short=7 HEAD)"
           TAG="v${UPSTREAM_VERSION}+git.${SHORT_SHA}"
           TITLE="YAD ${UPSTREAM_VERSION} (${SHORT_SHA})"
           {
@@ -119,8 +149,17 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout
+      - name: Checkout upstream source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_REF }}
+          fetch-depth: 1
+
+      - name: Import CI scripts from dev
+        run: |
+          git fetch --no-tags --depth=1 origin "${CI_REF}"
+          git checkout "origin/${CI_REF}" -- .ci
+          chmod +x .ci/*.sh
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4

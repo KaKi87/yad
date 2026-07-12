@@ -25,7 +25,7 @@ dch --newversion "$DEB_VERSION" \
   --distribution stable \
   --force-distribution \
   --force-bad-version \
-  "Automated CI build from ${GITHUB_SHA:-local}" < /dev/null
+  "Automated CI build from ${SOURCE_SHA:-${GITHUB_SHA:-local}}" < /dev/null
 
 dpkg-buildpackage -us -uc -b
 
