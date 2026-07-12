@@ -34,4 +34,17 @@ for deb in "$BUILD_ROOT"/*.deb; do
   cp -v "$deb" "$ARTIFACT_DIR/"
 done
 
+TARGET_ARCH="${TARGET_ARCH:-$(dpkg --print-architecture)}"
+BIN_DIR="$BUILD_ROOT/yad/debian/yad/usr/bin"
+
+for bin in yad yad-tools yad-icon-browser; do
+  if [[ -f "$BIN_DIR/$bin" ]]; then
+    cp -v "$BIN_DIR/$bin" "$ARTIFACT_DIR/${bin}-linux-${TARGET_ARCH}"
+  fi
+done
+
+if [[ -f "$BIN_DIR/yad-settings" ]]; then
+  cp -v "$BIN_DIR/yad-settings" "$ARTIFACT_DIR/yad-settings"
+fi
+
 ls -la "$ARTIFACT_DIR"
