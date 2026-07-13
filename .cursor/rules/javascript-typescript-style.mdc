@@ -1,0 +1,174 @@
+---
+description: JavaScript and TypeScript code style
+globs: **/*.js, **/*.ts, **/*.jsx, **/*.tsx, **/*.mjs, **/*.cjs
+alwaysApply: false
+---
+
+# JavaScript / TypeScript code style
+
+In JavaScript and TypeScript files, respect the following code style instructions.
+
+- Imports MUST be grouped as follows, groups are blocks separated from each other by an empty line :
+  - Standard library (`bun` & `bun:*` for Bun, `node:*` for Node/Node-on-Bun/Node-on-Deno, `@std/*` for Deno) ;
+  - Third-party libraries (`*` in Bun/Node, `npm:*` in Deno) ;
+  - Local library in parent directories (`../*`) ;
+  - Local library in current directory (`./*`).
+- Imports MUST also be ordered within each group by the order in which they're called in the code.
+- Exports MUST be placed at the top and grouped by kind, in the following order, except for usage constraits in the last two : `export type`, `export const`, `export let`.
+- Indentation MUST be 4 spaces.
+- Spaces MUST be added around :
+  - Function declaration parentheses ;
+  - Function declaration braces ;
+  - Arrow function arrows (`=>`) ;
+  - Arrow function parentheses ;
+  - Assignment (e.g. `=`, `+=`), logical (`&&`, `||`), equality (`==`, `!=`), relational (`<`, `>`, `<=`, `>=`), bitwise (`&`, `|`, `^`), additive (`+`, `-`), multiplicative (`*`, `/`, `%`), shift (`<<`, `>>`, `>>>`), ternary (`?`, `:`) operators ;
+  - `else`/`catch`/`case`/`finally`/`do` braces ;
+  - `catch`/`while` braces when not preceded by parentheses ;
+  - Template literal tag functions calls.
+- Spaces MUST be added after opening braces and before closing braces in objects, destructured objects and imports/exports.
+- Spaces MUST NOT be added around :
+  - Function call parentheses ;
+  - `if`/`for`/`while`/`switch`/`catch` parentheses ;
+  - `if`/`for`/`switch` braces ;
+  - `catch`/`while` braces when preceded by parentheses ;
+  - Unary operators (`+`, `-`, `++`, `--`, `!`, `!!`).
+- Spaces MUST NOT be added after opening brackets and before closing brackets in arrays and destructured arrays.
+- Spaces MUST NOT be added within parentheses.
+- Spaces MUST be added after and MUST NOT be added before commas, semicolons and colons.
+- Newlines MUST be added between :
+  - Multi-item import/export braces, though not necessarily for objects ;
+  - Conditions and operators in long `if` statements, including after opening brackets and before closing brackets.
+- Newlines MUST NOT be added before opening braces.
+- A newline MUST be added before `else` and `catch`.
+- Parentheses MUST NOT be added around single untyped arrow function arguments.
+- Braces MUST be added around `case` blocks.
+- Braces MUST NOT be added around single `if`/`else`/`for`/`while` instructions.
+- Braces MUST NOT be added around functions with a single statement, the `void ()` operator SHOULD be used if necessary.
+- Arrow functions MUST be prioritized over regular functions.
+- Consecutive `const` (and `export const`) & `let` (and `export let`) variables MUST be combined within a single declaration, separated by comma & newline, the first item on a newline as well.
+- Do not use `Class`.
+- Do not use optional commas.
+- Semicolons MUST be used everywhere possible.
+- Strings MUST use single quotes or backticks, never double quotes.
+- Main files MUST NOT be named `index.*`, rather `main.*` or `mod.*`.
+- Use when possible :
+  - Property shorthands ;
+  - Destructuring ;
+  - Template literals.
+
+Absolutely apply this code style for all new code.
+For existing code, do fix code style gaps strictly within these rules when encountered during tasks, but only if can be committed immediately and completely separately from the task.
+
+Also prefer the following coding patterns when possible :
+
+## Use `includes` over sequential `if`
+
+Don't :
+
+```js
+if(foo === 'bar' || foo === 'baz')
+    doSomething();
+```
+
+Do :
+
+```js
+if(['bar', 'baz'].includes(foo))
+    doSomething();
+```
+
+## Use `Promise.allSettled` over `try`/`catch`
+
+Don't :
+
+```js
+let result, error;
+try {
+    result = await doSomething();
+} catch (_error) {
+    error = _error;
+}
+if(error)
+    showError(error);
+else
+    showResult(result);
+```
+
+Do :
+
+```js
+const [{ value, reason }] = await Promise.allSettled([doSomething()]);
+if(reason)
+    showError(reason);
+else
+    showResult(value);
+```
+
+## Use ternary-based pattern matching
+
+Kotlin can do this :
+
+```kt
+fun compareNumbers(
+    a: Int,
+    b: Int
+) = when {
+    a > b -> "A is greater than B"
+    b > a -> "B is greater than A"
+    else -> "A and B are equal"
+}
+```
+
+JavaScript can do this too :
+
+```ts
+const compareNumbers = (
+    a: number,
+    b: number
+) => a > b ? 'A is greater than B'
+   : b > a ? 'B is greater than A'
+           : 'A and B are equal';
+```
+
+Or, for a variable declaration :
+
+```ts
+const comparisonResult = a > b ? 'A is greater than B'
+                       : b > a ? 'B is greater than A'
+                               : 'A and B are equal';
+```
+
+This specific pattern's code style overrides the above rules.
+
+## Use `Promise`-based pipelines
+
+A proposed specification for a JS pipe operator could turn this :
+
+```js
+Math.max(
+    ...Object.values(
+        JSON.parse(
+            '{"a":84,"b":91,"c":52,"d":26,"e":78,"f":19,"g":96,"h":57}'
+        ) // -> {a: 84, b: 91, c: 52, d: 26, e: 78, …}
+    ) // -> [84, 91, 52, 26, 78, 19, 96, 57]
+) // -> 96
+```
+
+Into this :
+
+```js
+'{"a":84,"b":91,"c":52,"d":26,"e":78,"f":19,"g":96,"h":57}'
+|> JSON.parse(%) // -> {a: 84, b: 91, c: 52, d: 26, e: 78, …}
+|> Object.values(%) // -> [84, 91, 52, 26, 78, 19, 96, 57]
+|> Math.max(...%) // -> 96
+```
+
+But you can do this in the meantime :
+
+```js
+await Promise
+    .resolve('{"a":84,"b":91,"c":52,"d":26,"e":78,"f":19,"g":96,"h":57}')
+    .then(JSON.parse) // -> {a: 84, b: 91, c: 52, d: 26, e: 78, …}
+    .then(Object.values) // -> [84, 91, 52, 26, 78, 19, 96, 57]
+    .then(_ => Math.max(..._)) // -> 96
+```

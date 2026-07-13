@@ -1,0 +1,43 @@
+---
+description: Use gitmoji in commit messages
+alwaysApply: true
+---
+
+# Gitmoji Commit Messages
+
+Format every commit message as:
+
+```
+<emoji-code> <concise imperative summary>
+```
+
+- Start with a gitmoji code (e.g. `:sparkles:`, `:bug:`), not a Unicode emoji.
+- Use a short imperative summary after the code (e.g. "add form timeout option", not "added" or "adds").
+- Pick the emoji that best matches the change. Full list: https://raw.githubusercontent.com/carloscuesta/gitmoji/refs/heads/master/packages/gitmojis/src/gitmojis.json
+
+## Common choices
+
+| Change                  | Code                 |
+|-------------------------|----------------------|
+| New feature             | `:sparkles:`         |
+| Bug fix                 | `:bug:`              |
+| Refactor                | `:recycle:`          |
+| Documentation           | `:memo:`             |
+| Tests                   | `:white_check_mark:` |
+| Configuration / tooling | `:wrench:`           |
+| Dependency upgrade      | `:arrow_up:`         |
+
+## Examples
+
+```
+:sparkles: Add --timeout support to form dialogs
+:bug: Fix segfault when icon name is empty
+:recycle: Simplify option parsing in main.c
+:memo: Document build flags in README
+```
+
+## Additional instructions
+
+- Capitalize the first letter of the commit message.
+- Use `&` instead of `and` when mentioning only 2 items within a single task.
+- Use `,` to separate multiple tasks within a single commit message.

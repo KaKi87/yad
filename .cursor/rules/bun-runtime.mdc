@@ -1,0 +1,26 @@
+---
+description: Use Bun for package management, scripts, and runtime
+alwaysApply: true
+---
+
+# Bun toolchain
+
+Use [Bun](https://bun.com) as the package manager, script runner, and runtime. Do not introduce separate TypeScript compile or run tooling.
+
+## Package management
+
+- Install dependencies with `bun install`, not `npm`, `yarn`, or `pnpm`.
+- Add packages with `bun add` / `bun add -d`, not `npm install`.
+- Keep `bun.lock` as the lockfile; do not add `package-lock.json`, `yarn.lock`, or `pnpm-lock.yaml`.
+
+## Running code
+
+- Run TypeScript directly: `bun run mod.ts`, `bun mod.ts`, or `bun run <script>` from `package.json`.
+- Run tests with `bun test`.
+- Do not use `tsc`, `ts-node`, `tsx`, `esbuild`, `swc`, or `node` to compile or execute project code. Do use the necessary tools for type-checking.
+
+## TypeScript
+
+- Bun transpiles TypeScript natively; there is no build step.
+- `tsconfig.json` is for editor support and type-checking only (`noEmit: true`). Do not add emit, build, or watch scripts that invoke `tsc`.
+- Prefer `@types/bun` for Bun APIs. Do not add `typescript` as a runtime or build dependency.
