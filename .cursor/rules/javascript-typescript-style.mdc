@@ -14,6 +14,7 @@ In JavaScript and TypeScript files, respect the following code style instruction
   - Local library in parent directories (`../*`) ;
   - Local library in current directory (`./*`).
 - Imports MUST also be ordered within each group by the order in which they're called in the code.
+- Exports MUST be placed at the top and grouped by kind, in the following order, except for usage constraits in the last two : `export type`, `export const`, `export let`.
 - Indentation MUST be 4 spaces.
 - Spaces MUST be added around :
   - Function declaration parentheses ;
