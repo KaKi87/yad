@@ -1,5 +1,5 @@
 Package: yad
-Version: 15.0-1+git02786f5
+Version: 15.0-1+git3f08f12
 Architecture: arm64
 Maintainer: Gustavo Soares de Lima <gustavo@logicus.com.br>
 Installed-Size: 876
@@ -7,11 +7,11 @@ Depends: libayatana-appindicator3-1 (>= 0.4.90), libc6 (>= 2.38), libcairo2 (>= 
 Homepage: https://github.com/v1cont/yad/
 Priority: optional
 Section: utils
-Filename: pool/main/y/yad/yad_15.0-1+git02786f5_arm64.deb
-Size: 227492
-SHA256: 8ec77579c48c77fa9999de09b4de186a262dcefc67ec4bc2120b2aec023da246
-SHA1: cf953234a4e41220afaa0b6f512c74f6add6d4f2
-MD5sum: 38e42cbf6b033100a8198b3ced1d6b3e
+Filename: pool/main/y/yad/yad_15.0-1+git3f08f12_arm64.deb
+Size: 228464
+SHA256: b32f1c6963e1c24011820850bfeaf1ce796f9978a0534633238e7c6e626b990a
+SHA1: f34695edd85374ce114ef46997e72fa68514c209
+MD5sum: 41050e594021ce7532e9850cdde0d8b6
 Description: tool for creating graphical dialogs from shell scripts
  .
  Yad allows you to display GTK+ dialog boxes from command line or shell
