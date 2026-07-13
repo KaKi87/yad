@@ -8,10 +8,10 @@ Homepage: https://github.com/v1cont/yad/
 Priority: optional
 Section: utils
 Filename: pool/main/y/yad/yad_15.0-1+git3f08f12_arm64.deb
-Size: 228464
-SHA256: b32f1c6963e1c24011820850bfeaf1ce796f9978a0534633238e7c6e626b990a
-SHA1: f34695edd85374ce114ef46997e72fa68514c209
-MD5sum: 41050e594021ce7532e9850cdde0d8b6
+Size: 228484
+SHA256: b50667c38521d44b603dc5b953ac55061d845198c8e5de2a3a397c8eb1c9a33a
+SHA1: b200fb012d2b90dd47081e0ea398bee41523931b
+MD5sum: ca96b8019174f48c50937b33a55a5548
 Description: tool for creating graphical dialogs from shell scripts
  .
  Yad allows you to display GTK+ dialog boxes from command line or shell

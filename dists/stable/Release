@@ -1,35 +1,35 @@
 Label: YAD APT Repository
 Codename: stable
-Date: Mon, 13 Jul 2026 05:59:16 UTC
+Date: Mon, 13 Jul 2026 06:42:25 UTC
 Architectures: amd64 arm64
 Components: main
 Description: YAD packages built from KaKi87/yad
 MD5Sum:
- 4b49570d31b7d36ac261dbedd6ca2025 997 main/binary-amd64/Packages
- 8401cdbd6d07ed2b220914a699e6b633 634 main/binary-amd64/Packages.gz
+ a3bddcd2d968780325d927e22f10ad62 997 main/binary-amd64/Packages
+ 2d7be27bd72f477683d6891b5a6230df 632 main/binary-amd64/Packages.gz
  d67389726484058a82476332715c7f58 110 main/binary-amd64/Release
- c3382aa14c27cfefb4e30e2162ae0640 997 main/binary-arm64/Packages
- ac973f00845e96acd68b63457765a086 631 main/binary-arm64/Packages.gz
+ decfbeaddb86ae21767ea2e705ee0fb8 997 main/binary-arm64/Packages
+ 103225350eb4e73e9dd033d6ad3ed68f 632 main/binary-arm64/Packages.gz
  5c8aef3aa597dabf651cdd1e37cd67f1 110 main/binary-arm64/Release
  d41d8cd98f00b204e9800998ecf8427e 0 main/source/Sources
  7029066c27ac6f5ef18d660d5741979a 20 main/source/Sources.gz
  2f9c5630ae2b5db7e0b59c8a40ea1749 111 main/source/Release
 SHA1:
- 3b026c34eeddcea549ad8a0567476932c984dbda 997 main/binary-amd64/Packages
- ff3e46ca7337ddc4e24018d16de92c6ba9def3cc 634 main/binary-amd64/Packages.gz
+ f294864d219f0a52eda2ed6ae70155de33ab5d63 997 main/binary-amd64/Packages
+ 65daffff48306b9a2bdfd8cb420939f5b21b1e92 632 main/binary-amd64/Packages.gz
  9a3053a2e96cedff131e7815111da3cd15a7702f 110 main/binary-amd64/Release
- b8ca0b642fe62912825c26a5249cd6c877b8ef03 997 main/binary-arm64/Packages
- 0f918b75771824b5970905344527023ef487527c 631 main/binary-arm64/Packages.gz
+ ed665df188922088ee85ef7356a52784eff52c8c 997 main/binary-arm64/Packages
+ 64e8ddac2dd890047155c2102c9700895be50d30 632 main/binary-arm64/Packages.gz
  59027d4bd176bb7e0fe167b61b46672d8b5150be 110 main/binary-arm64/Release
  da39a3ee5e6b4b0d3255bfef95601890afd80709 0 main/source/Sources
  46c6643f07aa7f6bfe7118de926b86defc5087c4 20 main/source/Sources.gz
  8ed0040e615f0ce984ed29086c7d7f8753935de1 111 main/source/Release
 SHA256:
- b0369d8d478c2324dbfb89c3765af29777c3c415d76aa3493eeba68ec6a25183 997 main/binary-amd64/Packages
- 60f9df4451ad09e1a55f14de29d5bcafc7eaa1eb9d5c21cf03c9bfa635130fa4 634 main/binary-amd64/Packages.gz
+ c9b727af03cc82e91ebdf431d17e29406bb40863e68c6c8fb7b05989db0c2d12 997 main/binary-amd64/Packages
+ d0f33039d1317996fb47d1aef0a7d77522290cae178a289dc00dd81ade69173b 632 main/binary-amd64/Packages.gz
  4874c63aead624579756e43465048644e2ac9014d31786c65a5be0c8f83ea090 110 main/binary-amd64/Release
- 200e0cc3804f13e7d137e263983918ce123e0fb4aab1f630a0b3d7b339665606 997 main/binary-arm64/Packages
- d7c4f0c707c40b9d323bd29046c62253bc7ee44581e9c29a16bff874f67088e1 631 main/binary-arm64/Packages.gz
+ ab58df5885580210f563e0336ad532e5acf478c58d9302ca8c5e609e46fd4fd1 997 main/binary-arm64/Packages
+ 51bd1ff0450d4eb2145957699fd9235bf5aff76b380132fccccaf4f84e4b953b 632 main/binary-arm64/Packages.gz
  8197a9f4e0a546dd5a64ac09c6ec065a15bfb91d570ce5b4f41e38d725bc69a7 110 main/binary-arm64/Release
  e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 main/source/Sources
  59869db34853933b239f1e2219cf7d431da006aa919635478511fabbfc8849d2 20 main/source/Sources.gz
