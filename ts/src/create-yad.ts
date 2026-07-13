@@ -1,7 +1,7 @@
 import { createYadApp } from './app/yad-app.ts';
 import {
     buildDialogArgs,
-    resolveStdin,
+    resolveStdin
 } from './cli/args.ts';
 import {
     enrichResult,
@@ -11,24 +11,24 @@ import {
     parseFormOutput,
     parseListOutput,
     parseStdout,
-    shouldHaveStdout,
+    shouldHaveStdout
 } from './cli/parse.ts';
 import {
     findYadBinary,
     runYad,
-    spawnYad,
+    spawnYad
 } from './cli/spawn.ts';
 import type {
     CommonOptions,
-    CreateYadOptions,
+    CreateYadOptions
 } from './types/common.ts';
 import type {
     DialogMode,
-    DialogOptionsMap,
+    DialogOptionsMap
 } from './types/dialogs.ts';
 import {
     ExitCode,
-    StockButton,
+    StockButton
 } from './types/exit-codes.ts';
 import type {
     ParsedAppResult,
@@ -37,11 +37,11 @@ import type {
     ParsedListResult,
     YadDialogResult,
     YadProcess,
-    YadRunResult,
+    YadRunResult
 } from './types/results.ts';
 import {
     validateCreateYadOptions,
-    validateDialogOptions,
+    validateDialogOptions
 } from './validation/schemas.ts';
 
 export type YadInstance = ReturnType<typeof createYad>;
@@ -56,7 +56,7 @@ export type {
     ParsedListResult,
     YadDialogResult,
     YadProcess,
-    YadRunResult,
+    YadRunResult
 };
 
 export const createYad = (options?: CreateYadOptions) => {
@@ -73,7 +73,7 @@ export const createYad = (options?: CreateYadOptions) => {
         run = async <M extends DialogMode>(
             mode: M,
             dialogOptions: DialogOptionsMap[M],
-            extra?: { stdin?: string; positional?: string[] },
+            extra?: { stdin?: string; positional?: string[] }
         ): Promise<YadDialogResult<string>> => {
             const binary = await getBinary();
             return runDialog(binary, mode, dialogOptions, parseStdout, extra);
@@ -82,7 +82,7 @@ export const createYad = (options?: CreateYadOptions) => {
         spawn = async <M extends DialogMode>(
             mode: M,
             dialogOptions: DialogOptionsMap[M],
-            extra?: { stdin?: string; positional?: string[] },
+            extra?: { stdin?: string; positional?: string[] }
         ): Promise<YadProcess & { mode: M; options: DialogOptionsMap[M] }> => {
             const
                 binary = await getBinary(),
@@ -104,7 +104,7 @@ export const createYad = (options?: CreateYadOptions) => {
                     await getBinary(),
                     'form',
                     opts,
-                    stdout => parseFormOutput(stdout, opts.fields, opts.separator),
+                    stdout => parseFormOutput(stdout, opts.fields, opts.separator)
                 ),
             entry: async (opts: DialogOptionsMap['entry'] = {}) =>
                 runDialog(await getBinary(), 'entry', opts, parseStdout),
@@ -113,14 +113,14 @@ export const createYad = (options?: CreateYadOptions) => {
                     await getBinary(),
                     'list',
                     opts,
-                    stdout => parseListOutput(stdout, opts.separator),
+                    stdout => parseListOutput(stdout, opts.separator)
                 ),
             file: async (opts: DialogOptionsMap['file'] = {}) =>
                 runDialog(
                     await getBinary(),
                     'file',
                     opts,
-                    stdout => parseFileOutput(stdout, opts.multiple, opts.separator),
+                    stdout => parseFileOutput(stdout, opts.multiple, opts.separator)
                 ),
             progress: (opts: DialogOptionsMap['progress'] = {}) =>
                 spawn('progress', { autoClose: true, ...opts }),
@@ -133,30 +133,30 @@ export const createYad = (options?: CreateYadOptions) => {
                     image: opts.image ?? 'dialog-question',
                     buttons: opts.buttons ?? [
                         { label: 'Yes', id: StockButton.yes },
-                        { label: 'No', id: StockButton.no },
-                    ],
+                        { label: 'No', id: StockButton.no }
+                    ]
                 }),
             info: (text: string, opts: Omit<DialogOptionsMap['message'], 'text'> = {}) =>
                 run('message', {
                     ...opts,
                     text,
                     image: opts.image ?? 'dialog-information',
-                    buttons: opts.buttons ?? [{ id: StockButton.ok }],
+                    buttons: opts.buttons ?? [{ id: StockButton.ok }]
                 }),
             warning: (text: string, opts: Omit<DialogOptionsMap['message'], 'text'> = {}) =>
                 run('message', {
                     ...opts,
                     text,
                     image: opts.image ?? 'dialog-warning',
-                    buttons: opts.buttons ?? [{ id: StockButton.ok }],
+                    buttons: opts.buttons ?? [{ id: StockButton.ok }]
                 }),
             error: (text: string, opts: Omit<DialogOptionsMap['message'], 'text'> = {}) =>
                 run('message', {
                     ...opts,
                     text,
                     image: opts.image ?? 'dialog-error',
-                    buttons: opts.buttons ?? [{ id: StockButton.ok }],
-                }),
+                    buttons: opts.buttons ?? [{ id: StockButton.ok }]
+                })
         };
 
     return {
@@ -197,7 +197,7 @@ export const createYad = (options?: CreateYadOptions) => {
                 await getBinary(),
                 'file',
                 opts,
-                stdout => parseFileOutput(stdout, opts.multiple, opts.separator),
+                stdout => parseFileOutput(stdout, opts.multiple, opts.separator)
             ),
 
         font: async (opts: DialogOptionsMap['font'] = {}): Promise<YadDialogResult<ParsedFontResult>> =>
@@ -208,7 +208,7 @@ export const createYad = (options?: CreateYadOptions) => {
                 await getBinary(),
                 'form',
                 opts,
-                stdout => parseFormOutput(stdout, opts.fields, opts.separator),
+                stdout => parseFormOutput(stdout, opts.fields, opts.separator)
             ),
 
         html: (opts: DialogOptionsMap['html']) =>
@@ -219,7 +219,7 @@ export const createYad = (options?: CreateYadOptions) => {
                 await getBinary(),
                 'list',
                 opts,
-                stdout => parseListOutput(stdout, opts.separator),
+                stdout => parseListOutput(stdout, opts.separator)
             ),
 
         notebook: (opts: DialogOptionsMap['notebook']) =>
@@ -257,7 +257,7 @@ export const createYad = (options?: CreateYadOptions) => {
                 ...opts,
                 text,
                 image: opts.image ?? 'dialog-information',
-                buttons: opts.buttons ?? [{ id: StockButton.ok }],
+                buttons: opts.buttons ?? [{ id: StockButton.ok }]
             }),
 
         warning: (text: string, opts: Omit<DialogOptionsMap['message'], 'text'> = {}) =>
@@ -265,7 +265,7 @@ export const createYad = (options?: CreateYadOptions) => {
                 ...opts,
                 text,
                 image: opts.image ?? 'dialog-warning',
-                buttons: opts.buttons ?? [{ id: StockButton.ok }],
+                buttons: opts.buttons ?? [{ id: StockButton.ok }]
             }),
 
         error: (text: string, opts: Omit<DialogOptionsMap['message'], 'text'> = {}) =>
@@ -273,7 +273,7 @@ export const createYad = (options?: CreateYadOptions) => {
                 ...opts,
                 text,
                 image: opts.image ?? 'dialog-error',
-                buttons: opts.buttons ?? [{ id: StockButton.ok }],
+                buttons: opts.buttons ?? [{ id: StockButton.ok }]
             }),
 
         question: (text: string, opts: Omit<DialogOptionsMap['message'], 'text'> = {}) =>
@@ -283,8 +283,8 @@ export const createYad = (options?: CreateYadOptions) => {
                 image: opts.image ?? 'dialog-question',
                 buttons: opts.buttons ?? [
                     { label: 'Yes', id: StockButton.yes },
-                    { label: 'No', id: StockButton.no },
-                ],
+                    { label: 'No', id: StockButton.no }
+                ]
             }),
 
         confirm: (text: string, opts: Omit<DialogOptionsMap['message'], 'text'> = {}) =>
@@ -293,15 +293,15 @@ export const createYad = (options?: CreateYadOptions) => {
                 text,
                 buttons: opts.buttons ?? [
                     { label: 'OK', id: StockButton.ok },
-                    { label: 'Cancel', id: StockButton.cancel },
-                ],
-            }),
+                    { label: 'Cancel', id: StockButton.cancel }
+                ]
+            })
     };
 };
 
 export {
     ExitCode,
-    StockButton,
+    StockButton
 };
 
 const runDialog = async <M extends DialogMode, T>(
@@ -309,7 +309,7 @@ const runDialog = async <M extends DialogMode, T>(
     mode: M,
     options: DialogOptionsMap[M],
     parse: (stdout: string, result: YadRunResult) => T | null,
-    extra?: { stdin?: string; positional?: string[] },
+    extra?: { stdin?: string; positional?: string[] }
 ): Promise<YadDialogResult<T>> => {
     const
         validated = validateDialogOptions(mode, options),

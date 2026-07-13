@@ -1,18 +1,18 @@
 import {
     describe,
     expect,
-    test,
+    test
 } from 'bun:test';
 
 import {
     createYad,
-    ExitCode,
+    ExitCode
 } from '../mod.ts';
 
 import {
     resolveTestBinary,
     signalOk,
-    skipWithoutDisplay,
+    skipWithoutDisplay
 } from './helpers.ts';
 
 const binary = resolveTestBinary() ?? '/usr/bin/yad';
@@ -47,7 +47,7 @@ describe('GUI dialogs', () => {
             proc = await yad.spawn('message', {
                 text: 'Integration test',
                 noButtons: true,
-                undecorated: true,
+                undecorated: true
             }),
 
             waitPromise = proc.wait();
@@ -67,7 +67,7 @@ describe('GUI dialogs', () => {
                 text: 'Info test',
                 image: 'dialog-information',
                 noButtons: true,
-                buttons: [{ id: 'yad-ok' }],
+                buttons: [{ id: 'yad-ok' }]
             }),
 
             waitPromise = proc.wait();
@@ -86,10 +86,10 @@ describe('GUI dialogs', () => {
                 title: 'Test Form',
                 fields: [
                     { label: 'Name', value: 'TestUser' },
-                    { label: 'Active', type: 'CHK', value: 'TRUE' },
+                    { label: 'Active', type: 'CHK', value: 'TRUE' }
                 ],
                 values: ['TestUser', 'TRUE'],
-                noButtons: true,
+                noButtons: true
             }),
 
             waitPromise = proc.wait();
@@ -109,7 +109,7 @@ describe('GUI dialogs', () => {
             result = await yad.message({
                 text: 'Timeout test',
                 timeout: 1,
-                noButtons: true,
+                noButtons: true
             });
 
         expect(result.exitCode).toBe(ExitCode.timeout);
@@ -125,12 +125,12 @@ describe('YadApp high-level API', () => {
             wizard = app.wizard([
                 {
                     type: 'custom',
-                    run: async ({ state }) => state.step = 1,
+                    run: async ({ state }) => state.step = 1
                 },
                 {
                     type: 'custom',
-                    run: async ({ state }) => state.step = 2,
-                },
+                    run: async ({ state }) => state.step = 2
+                }
             ]),
 
             result = await wizard.run();

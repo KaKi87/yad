@@ -1,6 +1,6 @@
 import type {
     YadProcess,
-    YadRunResult,
+    YadRunResult
 } from '../types/results.ts';
 
 export type SpawnOptions = {
@@ -22,7 +22,7 @@ export const
                 stdout: 'pipe',
                 stderr: 'pipe',
                 env: options.env ? { ...process.env, ...options.env } : process.env,
-                cwd: options.cwd,
+                cwd: options.cwd
             }),
             stdinSink = proc.stdin as StdinSink | null;
 
@@ -54,11 +54,11 @@ export const
                 const [stdout, stderr, exitCode] = await Promise.all([
                     new Response(proc.stdout).text(),
                     new Response(proc.stderr).text(),
-                    proc.exited,
+                    proc.exited
                 ]);
 
                 return { exitCode, stdout, stderr };
-            },
+            }
         };
     },
 

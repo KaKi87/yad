@@ -1,7 +1,7 @@
 import {
     describe,
     expect,
-    test,
+    test
 } from 'bun:test';
 
 import {
@@ -10,7 +10,7 @@ import {
     parseFontOutput,
     parseFormOutput,
     parseListOutput,
-    shouldHaveStdout,
+    shouldHaveStdout
 } from '../src/cli/parse.ts';
 import { ExitCode } from '../src/types/exit-codes.ts';
 
@@ -35,7 +35,7 @@ describe('parseFormOutput', () => {
     test('maps fields by label', () => {
         const result = parseFormOutput('Alice|30', [
             { label: 'Name' },
-            { label: 'Age', type: 'NUM' },
+            { label: 'Age', type: 'NUM' }
         ]);
 
         expect(result.fields).toEqual(['Alice', '30']);
@@ -45,7 +45,7 @@ describe('parseFormOutput', () => {
     test('skips label-only fields', () => {
         const result = parseFormOutput('x', [
             { label: 'Section', type: 'LBL' },
-            { label: 'Value' },
+            { label: 'Value' }
         ]);
 
         expect(result.byLabel).toEqual({ Value: 'x' });
@@ -63,7 +63,7 @@ describe('parseFontOutput', () => test('parses separate output', () => {
         full: 'Sans|Bold|12',
         family: 'Sans',
         face: 'Bold',
-        size: '12',
+        size: '12'
     });
 }));
 

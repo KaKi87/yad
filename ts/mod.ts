@@ -2,16 +2,16 @@ export type {
     ProgressHandle,
     ProgressRunnerOptions,
     TrayHandle,
-    TrayRunnerOptions,
+    TrayRunnerOptions
 } from './src/app/long-running.ts';
 export type {
     WizardResult,
-    WizardStep,
+    WizardStep
 } from './src/app/wizard.ts';
 export type {
     PromptOptions,
     SelectOptions,
-    YadApp,
+    YadApp
 } from './src/app/yad-app.ts';
 export type {
     CreateYadOptions,
@@ -24,25 +24,25 @@ export type {
     YadDialogResult,
     YadInstance,
     YadProcess,
-    YadRunResult,
+    YadRunResult
 } from './src/create-yad.ts';
 export type {
     CommonOptions,
     FileFilter,
-    YadButton,
+    YadButton
 } from './src/types/common.ts';
 export type {
     FormField,
     FormFieldType,
     ListColumn,
-    ListColumnType,
+    ListColumnType
 } from './src/types/dialogs.ts';
 export {
     buildButton,
     buildCommonArgs,
     buildDialogArgs,
     formatFormField,
-    formatListColumn,
+    formatListColumn
 } from './src/cli/args.ts';
 export {
     isCancelled,
@@ -53,10 +53,10 @@ export {
     parseFileOutput,
     parseFontOutput,
     parseFormOutput,
-    parseListOutput,
+    parseListOutput
 } from './src/cli/parse.ts';
 export {
     createYad,
     ExitCode,
-    StockButton,
+    StockButton
 } from './src/create-yad.ts';

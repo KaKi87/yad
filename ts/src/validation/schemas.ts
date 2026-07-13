@@ -3,7 +3,7 @@ import Joi from 'joi';
 import type { CreateYadOptions } from '../types/common.ts';
 import type {
     DialogMode,
-    DialogOptionsMap,
+    DialogOptionsMap
 } from '../types/dialogs.ts';
 
 export const
@@ -16,7 +16,7 @@ export const
 
     validateDialogOptions = <M extends DialogMode>(
         mode: M,
-        options: DialogOptionsMap[M],
+        options: DialogOptionsMap[M]
     ): DialogOptionsMap[M] => {
         const
             schema = dialogSchemas[mode],
@@ -31,17 +31,17 @@ const
         label: Joi.string(),
         icon: Joi.string(),
         tooltip: Joi.string(),
-        id: Joi.alternatives().try(Joi.number().integer(), Joi.string()).required(),
+        id: Joi.alternatives().try(Joi.number().integer(), Joi.string()).required()
     }),
 
     fileFilterSchema = Joi.object({
         name: Joi.string().required(),
-        patterns: Joi.array().items(Joi.string()).min(1).required(),
+        patterns: Joi.array().items(Joi.string()).min(1).required()
     }),
 
     mimeFilterSchema = Joi.object({
         name: Joi.string().required(),
-        mimes: Joi.array().items(Joi.string()).min(1).required(),
+        mimes: Joi.array().items(Joi.string()).min(1).required()
     }),
 
     commonOptionsSchema = Joi.object({
@@ -63,7 +63,7 @@ const
         maximized: Joi.boolean(),
         fullscreen: Joi.boolean(),
         windowType: Joi.string().valid(
-            'normal', 'dialog', 'utility', 'dock', 'desktop', 'tooltip', 'notification', 'splash',
+            'normal', 'dialog', 'utility', 'dock', 'desktop', 'tooltip', 'notification', 'splash'
         ),
         noFocus: Joi.boolean(),
         closeOnUnfocus: Joi.boolean(),
@@ -105,11 +105,11 @@ const
         mimeFilters: Joi.array().items(mimeFilterSchema),
         imageFilters: Joi.array().items(Joi.alternatives().try(Joi.boolean(), Joi.string())),
         addPreview: Joi.boolean(),
-        largePreview: Joi.boolean(),
+        largePreview: Joi.boolean()
     }).unknown(false),
 
     createYadOptionsSchema = Joi.object({
-        path: Joi.string(),
+        path: Joi.string()
     }).unknown(false),
 
     formFieldSchema = Joi.object({
@@ -119,19 +119,19 @@ const
             'H', 'RO', 'NUM', 'CHK', 'CB', 'CBE', 'CE',
             'FL', 'SFL', 'DIR', 'CDIR', 'FN', 'MFL', 'MDIR',
             'DT', 'SCL', 'SW', 'APP', 'ICON', 'CLR',
-            'BTN', 'FBTN', 'LINK', 'LBL', 'TXT',
+            'BTN', 'FBTN', 'LINK', 'LBL', 'TXT'
         ),
         value: Joi.string(),
         items: Joi.array().items(Joi.string()),
-        disabled: Joi.boolean(),
+        disabled: Joi.boolean()
     }),
 
     listColumnSchema = Joi.object({
         name: Joi.string().required(),
         tooltip: Joi.string(),
         type: Joi.string().valid(
-            'TEXT', 'NUM', 'SZ', 'FLT', 'CHK', 'RD', 'BAR', 'IMG', 'HD', 'TIP',
-        ),
+            'TEXT', 'NUM', 'SZ', 'FLT', 'CHK', 'RD', 'BAR', 'IMG', 'HD', 'TIP'
+        )
     }),
 
     dialogSchemas: Record<DialogMode, Joi.ObjectSchema> = {
@@ -144,14 +144,14 @@ const
             license: Joi.string(),
             authors: Joi.string(),
             website: Joi.string(),
-            websiteLabel: Joi.string(),
+            websiteLabel: Joi.string()
         }),
         app: commonOptionsSchema.keys({
             enableFallback: Joi.boolean(),
             enableOther: Joi.boolean(),
             enableAll: Joi.boolean(),
             extended: Joi.boolean(),
-            mimeType: Joi.string(),
+            mimeType: Joi.string()
         }),
         calendar: commonOptionsSchema.keys({
             day: Joi.number().integer().min(1).max(31),
@@ -160,7 +160,7 @@ const
             dateFormat: Joi.string(),
             showWeeks: Joi.boolean(),
             details: Joi.string(),
-            selectAction: Joi.string(),
+            selectAction: Joi.string()
         }),
         color: commonOptionsSchema.keys({
             initColor: Joi.string(),
@@ -169,12 +169,12 @@ const
             alpha: Joi.boolean(),
             palette: Joi.alternatives().try(Joi.boolean(), Joi.string()),
             expandPalette: Joi.boolean(),
-            mode: Joi.string().valid('hex', 'rgb'),
+            mode: Joi.string().valid('hex', 'rgb')
         }),
         dnd: commonOptionsSchema.keys({
             tooltip: Joi.boolean(),
             command: Joi.string(),
-            exitOnDrop: Joi.number().integer().min(0),
+            exitOnDrop: Joi.number().integer().min(0)
         }),
         entry: commonOptionsSchema.keys({
             entryLabel: Joi.string(),
@@ -190,7 +190,7 @@ const
             rightIcon: Joi.string(),
             rightIconAction: Joi.string(),
             numOutput: Joi.boolean(),
-            items: Joi.array().items(Joi.alternatives().try(Joi.string(), Joi.number())),
+            items: Joi.array().items(Joi.alternatives().try(Joi.string(), Joi.number()))
         }),
         icons: commonOptionsSchema.keys({
             readDir: Joi.string(),
@@ -203,7 +203,7 @@ const
             iconSize: Joi.number().integer().positive(),
             compact: Joi.boolean(),
             singleClick: Joi.boolean(),
-            term: Joi.string(),
+            term: Joi.string()
         }),
         file: commonOptionsSchema.keys({
             filename: Joi.string(),
@@ -212,14 +212,14 @@ const
             save: Joi.boolean(),
             separator: Joi.string(),
             confirmOverwrite: Joi.alternatives().try(Joi.boolean(), Joi.string()),
-            quotedOutput: Joi.boolean(),
+            quotedOutput: Joi.boolean()
         }),
         font: commonOptionsSchema.keys({
             fontName: Joi.string(),
             preview: Joi.string(),
             separateOutput: Joi.boolean(),
             separator: Joi.string(),
-            quotedOutput: Joi.boolean(),
+            quotedOutput: Joi.boolean()
         }),
         form: commonOptionsSchema.keys({
             fields: Joi.array().items(formFieldSchema).min(1).required(),
@@ -239,7 +239,7 @@ const
             quotedOutput: Joi.boolean(),
             outputByRow: Joi.boolean(),
             numOutput: Joi.boolean(),
-            values: Joi.array().items(Joi.string()),
+            values: Joi.array().items(Joi.string())
         }),
         html: commonOptionsSchema.keys({
             uri: Joi.string(),
@@ -253,7 +253,7 @@ const
             fileOp: Joi.boolean(),
             webkitProps: Joi.array().items(Joi.string()),
             content: Joi.string(),
-            uris: Joi.array().items(Joi.string()),
+            uris: Joi.array().items(Joi.string())
         }),
         list: commonOptionsSchema.keys({
             columns: Joi.array().items(listColumnSchema).min(1).required(),
@@ -297,20 +297,20 @@ const
             simpleTips: Joi.boolean(),
             headerTips: Joi.boolean(),
             columnAlign: Joi.string(),
-            headerAlign: Joi.string(),
+            headerAlign: Joi.string()
         }),
         notebook: commonOptionsSchema.keys({
             key: Joi.number().integer().required(),
             tabs: Joi.array().items(Joi.object({
                 label: Joi.string().required(),
                 icon: Joi.string(),
-                tooltip: Joi.string(),
+                tooltip: Joi.string()
             })).min(1).required(),
             tabPos: Joi.string().valid('top', 'bottom', 'left', 'right'),
             tabBorders: Joi.number().integer().min(0),
             activeTab: Joi.number().integer().min(0),
             expand: Joi.boolean(),
-            stack: Joi.boolean(),
+            stack: Joi.boolean()
         }),
         notification: commonOptionsSchema.keys({
             command: Joi.string(),
@@ -320,32 +320,32 @@ const
             itemSeparator: Joi.string(),
             noMiddle: Joi.boolean(),
             hidden: Joi.boolean(),
-            iconSize: Joi.number().integer().positive(),
+            iconSize: Joi.number().integer().positive()
         }),
         appindicator: commonOptionsSchema.keys({
             listen: Joi.boolean(),
             menu: Joi.string(),
             separator: Joi.string(),
             itemSeparator: Joi.string(),
-            hidden: Joi.boolean(),
+            hidden: Joi.boolean()
         }),
         popup: commonOptionsSchema.keys({
             transparent: Joi.number().integer().min(0).max(100),
             timeout: Joi.number().integer().min(0),
             keep: Joi.boolean(),
-            align: Joi.string().valid('left', 'center', 'right'),
+            align: Joi.string().valid('left', 'center', 'right')
         }),
         print: commonOptionsSchema.keys({
             type: Joi.string().valid('TEXT', 'IMAGE', 'RAW'),
             filename: Joi.string(),
             headers: Joi.boolean(),
             addPreview: Joi.boolean(),
-            fontName: Joi.string(),
+            fontName: Joi.string()
         }),
         progress: commonOptionsSchema.keys({
             bars: Joi.array().items(Joi.object({
                 label: Joi.string(),
-                type: Joi.string().valid('NORM', 'RTL', 'PULSE', 'CPULSE'),
+                type: Joi.string().valid('NORM', 'RTL', 'PULSE', 'CPULSE')
             })),
             vertical: Joi.boolean(),
             align: Joi.string().valid('left', 'center', 'right'),
@@ -361,7 +361,7 @@ const
             logOnTop: Joi.boolean(),
             logExpanded: Joi.boolean(),
             logHeight: Joi.number().integer().positive(),
-            initialValues: Joi.array().items(Joi.number()),
+            initialValues: Joi.array().items(Joi.number())
         }),
         scale: commonOptionsSchema.keys({
             value: Joi.number(),
@@ -377,8 +377,8 @@ const
             incButtons: Joi.boolean(),
             marks: Joi.array().items(Joi.object({
                 name: Joi.string(),
-                value: Joi.number().required(),
-            })),
+                value: Joi.number().required()
+            }))
         }),
         'text-info': commonOptionsSchema.keys({
             filename: Joi.string(),
@@ -415,13 +415,13 @@ const
             smartBs: Joi.boolean(),
             tabWidth: Joi.number().integer().positive(),
             indentWidth: Joi.number().integer().positive(),
-            spaces: Joi.boolean(),
+            spaces: Joi.boolean()
         }),
         paned: commonOptionsSchema.keys({
             key: Joi.number().integer().required(),
             orient: Joi.string().valid('horizontal', 'vertical'),
             splitter: Joi.number().integer().min(0),
-            focused: Joi.number().valid(1, 2),
+            focused: Joi.number().valid(1, 2)
         }),
         picture: commonOptionsSchema.keys({
             size: Joi.string().valid('fit', 'orig'),
@@ -429,6 +429,6 @@ const
             filename: Joi.string(),
             fileOp: Joi.boolean(),
             imageChanged: Joi.string(),
-            filenames: Joi.array().items(Joi.string()),
-        }),
+            filenames: Joi.array().items(Joi.string())
+        })
     };

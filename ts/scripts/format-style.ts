@@ -8,7 +8,7 @@
 import {
     readdir,
     readFile,
-    writeFile,
+    writeFile
 } from 'node:fs/promises';
 import { join } from 'node:path';
 

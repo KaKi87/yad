@@ -9,7 +9,7 @@ export const
         ok: 0,
         cancel: 1,
         timeout: 70,
-        escape: 252,
+        escape: 252
     } as const,
     StockButton = {
         about: 'yad-about',
@@ -31,5 +31,5 @@ export const
         search: 'yad-search',
         send: 'yad-send',
         settings: 'yad-settings',
-        yes: 'yad-yes',
+        yes: 'yad-yes'
     } as const;

@@ -31,7 +31,7 @@ export const
             await proc.write(line);
         },
         setLabel: async (text: string) => await proc.write(`# ${text}\n`),
-        log: async (text: string) => await proc.write(`# ${text}\n`),
+        log: async (text: string) => await proc.write(`# ${text}\n`)
     }),
     createTrayHandle = (proc: YadProcess): TrayHandle => ({
         ...proc,
@@ -39,5 +39,5 @@ export const
         setTooltip: async (tooltip: string) => await proc.write(`tooltip:${tooltip}\n`),
         setVisible: async (visible: boolean) => await proc.write(`visible:${visible}\n`),
         setMenu: async (menu: string) => await proc.write(`menu:${menu}\n`),
-        quit: async () => await proc.write('quit\n'),
+        quit: async () => await proc.write('quit\n')
     });

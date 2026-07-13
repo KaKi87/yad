@@ -1,6 +1,6 @@
 import type {
     CommonOptions,
-    TextAlign,
+    TextAlign
 } from './common.ts';
 
 export type DialogMode =

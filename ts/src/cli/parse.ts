@@ -6,7 +6,7 @@ import type {
     ParsedFormResult,
     ParsedListResult,
     YadDialogResult,
-    YadRunResult,
+    YadRunResult
 } from '../types/results.ts';
 
 export const
@@ -24,7 +24,7 @@ export const
 
     shouldHaveStdout = (
         exitCode: number,
-        alwaysPrintResult?: boolean,
+        alwaysPrintResult?: boolean
     ): boolean => {
         if(alwaysPrintResult && !isTimedOut(exitCode) && !isEscaped(exitCode))
             return true;
@@ -39,14 +39,14 @@ export const
     enrichResult = <T = string>(
         result: YadRunResult,
         value: T | null,
-        _alwaysPrintResult?: boolean,
+        _alwaysPrintResult?: boolean
     ): YadDialogResult<T> => ({
             ...result,
             value,
             ok: isOk(result.exitCode),
             cancelled: isCancelled(result.exitCode),
             timedOut: isTimedOut(result.exitCode),
-            escaped: isEscaped(result.exitCode),
+            escaped: isEscaped(result.exitCode)
         }),
 
     parseStdout = (stdout: string): string =>
@@ -55,7 +55,7 @@ export const
     parseFormOutput = (
         stdout: string,
         fields: FormField[],
-        separator = '|',
+        separator = '|'
     ): ParsedFormResult => {
         const
             values = parseStdout(stdout).split(separator),
@@ -75,18 +75,18 @@ export const
 
     parseListOutput = (
         stdout: string,
-        separator = '|',
+        separator = '|'
     ): ParsedListResult => ({
         rows: parseStdout(stdout)
             .split('\n')
             .filter(Boolean)
-            .map(line => line.split(separator)),
+            .map(line => line.split(separator))
     }),
 
     parseFontOutput = (
         stdout: string,
         separateOutput?: boolean,
-        separator = '|',
+        separator = '|'
     ): ParsedFontResult => {
         const full = parseStdout(stdout);
 
@@ -100,7 +100,7 @@ export const
     parseAppOutput = (
         stdout: string,
         extended?: boolean,
-        separator = '|',
+        separator = '|'
     ): ParsedAppResult => {
         const text = parseStdout(stdout);
 
@@ -110,14 +110,14 @@ export const
         const [name, display, description, icon, executable] = text.split(separator);
         return {
             executable: executable ?? text,
-            extended: { name, display, description, icon, executable },
+            extended: { name, display, description, icon, executable }
         };
     },
 
     parseFileOutput = (
         stdout: string,
         multiple?: boolean,
-        separator = '\n',
+        separator = '\n'
     ): string | string[] => {
         const text = parseStdout(stdout);
 

@@ -1,7 +1,7 @@
 import {
     describe,
     expect,
-    test,
+    test
 } from 'bun:test';
 
 import {
@@ -9,7 +9,7 @@ import {
     buildCommonArgs,
     buildDialogArgs,
     formatFormField,
-    formatListColumn,
+    formatListColumn
 } from '../src/cli/args.ts';
 import { StockButton } from '../src/types/exit-codes.ts';
 
@@ -19,7 +19,7 @@ describe('buildCommonArgs', () => {
             title: 'Hello',
             width: 400,
             height: 300,
-            center: true,
+            center: true
         });
 
         expect(args).toContain('--title=Hello');
@@ -32,8 +32,8 @@ describe('buildCommonArgs', () => {
         const args = buildCommonArgs({
             buttons: [
                 buildButton('Yes', StockButton.yes),
-                { label: 'Custom', id: 42 },
-            ],
+                { label: 'Custom', id: 42 }
+            ]
         });
 
         expect(args).toContain('--button=Yes:yad-yes');
@@ -42,7 +42,7 @@ describe('buildCommonArgs', () => {
 
     test('formats file filters', () => {
         const args = buildCommonArgs({
-            fileFilters: [{ name: 'Images', patterns: ['*.png', '*.jpg'] }],
+            fileFilters: [{ name: 'Images', patterns: ['*.png', '*.jpg'] }]
         });
 
         expect(args).toContain('--file-filter=Images | *.png *.jpg');
@@ -52,7 +52,7 @@ describe('buildCommonArgs', () => {
 describe('buildDialogArgs', () => {
     test('adds mode flag for form dialog', () => {
         const args = buildDialogArgs('form', {
-            fields: [{ label: 'Name' }, { label: 'Age', type: 'NUM' }],
+            fields: [{ label: 'Name' }, { label: 'Age', type: 'NUM' }]
         });
 
         expect(args).toContain('--form');
@@ -69,7 +69,7 @@ describe('buildDialogArgs', () => {
     test('list dialog includes columns and rows via stdin resolution', () => {
         const args = buildDialogArgs('list', {
             columns: [{ name: 'Item' }, { name: 'Qty', type: 'NUM' }],
-            rows: [['Apple', '3'], ['Banana', '5']],
+            rows: [['Apple', '3'], ['Banana', '5']]
         });
 
         expect(args).toContain('--list');

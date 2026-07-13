@@ -45,6 +45,7 @@ In JavaScript and TypeScript files, respect the following code style instruction
 - Arrow functions MUST be prioritized over regular functions.
 - Consecutive `const` (and `export const`) & `let` (and `export let`) variables MUST be combined within a single declaration, separated by comma & newline, the first item on a newline as well.
 - Do not use `Class`.
+- Do not use optional commas.
 - Semicolons MUST be used everywhere possible.
 - Strings MUST use single quotes or backticks, never double quotes.
 - Use when possible :

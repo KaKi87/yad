@@ -3,13 +3,13 @@ const
         meta: {
             type: 'layout',
             docs: {
-                description: 'Require merging consecutive `export const` declarations.',
+                description: 'Require merging consecutive `export const` declarations.'
             },
             fixable: 'code',
             schema: [],
             messages: {
-                merge: 'Combine consecutive `export const` declarations into a single declaration.',
-            },
+                merge: 'Combine consecutive `export const` declarations into a single declaration.'
+            }
         },
         create: context => {
             const
@@ -44,8 +44,8 @@ const
                         messageId: 'merge',
                         fix: fixer => fixer.replaceTextRange(
                             [first.range[0], run[run.length - 1].range[1]],
-                            merged,
-                        ),
+                            merged
+                        )
                     });
                 };
 
@@ -66,15 +66,15 @@ const
 
                     if(run.length >= 2)
                         mergeRun(run);
-                },
+                }
             };
-        },
+        }
     },
 
     EXPORT_KIND = {
         type: 0,
         const: 1,
-        let: 2,
+        let: 2
     },
 
     isExportStatement = node =>
@@ -112,7 +112,7 @@ const
             return [];
 
         return node.declaration.declarations.flatMap(declarator =>
-        declarator.id.type === 'Identifier' ? [declarator.id.name] : [],
+        declarator.id.type === 'Identifier' ? [declarator.id.name] : []
         );
     },
 
@@ -167,15 +167,15 @@ const
         meta: {
             type: 'layout',
             docs: {
-                description: 'Require exports at the top, grouped as `export type`, then `export const`, then `export let`.',
+                description: 'Require exports at the top, grouped as `export type`, then `export const`, then `export let`.'
             },
             schema: [],
             messages: {
                 codeBeforeExports: 'Non-export code must not appear before exports.',
                 splitsExports: 'Non-export code must not appear between export statements.',
                 exportAfterCode: 'Exports must not appear after non-export code.',
-                kindOrder: 'Place `export {{kind}}` before `export {{priorKind}}` exports.',
-            },
+                kindOrder: 'Place `export {{kind}}` before `export {{priorKind}}` exports.'
+            }
         },
         create: context => ({
             Program: program => {
@@ -198,7 +198,7 @@ const
                 for(let index = 0; index < firstExportIndex; index++)
                     context.report({
                         node: entries[index],
-                        messageId: 'codeBeforeExports',
+                        messageId: 'codeBeforeExports'
                     });
             
 
@@ -206,7 +206,7 @@ const
                     if(!isExportStatement(entries[index]))
                         context.report({
                             node: entries[index],
-                            messageId: 'splitsExports',
+                            messageId: 'splitsExports'
                         });
                 
             
@@ -215,7 +215,7 @@ const
                     if(isExportStatement(entries[index]))
                         context.report({
                             node: entries[index],
-                            messageId: 'exportAfterCode',
+                            messageId: 'exportAfterCode'
                         });
                 
             
@@ -235,8 +235,8 @@ const
                             messageId: 'kindOrder',
                             data: {
                                 kind: label,
-                                priorKind: maxRankLabel,
-                            },
+                                priorKind: maxRankLabel
+                            }
                         });
                 
 
@@ -250,21 +250,21 @@ const
                             priorLetNames.add(name);
                 
                 }
-            },
-        }),
+            }
+        })
     },
 
     newlineAfterVarKind = {
         meta: {
             type: 'layout',
             docs: {
-                description: 'Require `const`/`let`/`var` to place the first declarator on the next line.',
+                description: 'Require `const`/`let`/`var` to place the first declarator on the next line.'
             },
             fixable: 'code',
             schema: [],
             messages: {
-                newline: 'Put the first declarator on a new line under the declaration keyword.',
-            },
+                newline: 'Put the first declarator on a new line under the declaration keyword.'
+            }
         },
         create: context => {
             const
@@ -292,28 +292,28 @@ const
                     context.report({
                         node: variableDeclaration.declarations[0],
                         messageId: 'newline',
-                        fix: fixer => fixer.replaceTextRange([kindToken.range[1], firstDeclaratorToken.range[0]], replacement),
+                        fix: fixer => fixer.replaceTextRange([kindToken.range[1], firstDeclaratorToken.range[0]], replacement)
                     });
                 };
 
             return {
-                VariableDeclaration: checkVarDecl,
+                VariableDeclaration: checkVarDecl
             };
-        },
+        }
     },
 
     spaceBeforeElseCatchDoBraces = {
         meta: {
             type: 'layout',
             docs: {
-                description: 'Require a space before `{` after `else`, `finally`, and `do`.',
+                description: 'Require a space before `{` after `else`, `finally`, and `do`.'
             },
             fixable: 'code',
             schema: [],
             messages: {
                 missing: 'Add a space before `{` after `{{keyword}}`.',
-                extra: 'Remove the space before `{` after `{{keyword}}`.',
-            },
+                extra: 'Remove the space before `{` after `{{keyword}}`.'
+            }
         },
         create: context => {
             const
@@ -323,7 +323,7 @@ const
                     const
                         brace = sourceCode.getFirstToken(block),
                         keywordToken = sourceCode.getTokenBefore(brace, {
-                            filter: token => token.type === 'Keyword' && token.value === keyword,
+                            filter: token => token.type === 'Keyword' && token.value === keyword
                         });
 
                     if(!brace || !keywordToken || keywordToken.loc.end.line !== brace.loc.start.line)
@@ -340,8 +340,8 @@ const
                         data: { keyword },
                         fix: fixer => fixer.replaceTextRange(
                             [keywordToken.range[1], brace.range[0]],
-                            ' ',
-                        ),
+                            ' '
+                        )
                     });
                 },
 
@@ -349,7 +349,7 @@ const
                     const
                         brace = sourceCode.getFirstToken(block),
                         colon = sourceCode.getTokenBefore(brace, {
-                            filter: token => token.value === ':',
+                            filter: token => token.value === ':'
                         });
 
                     if(!brace || !colon || colon.loc.end.line !== brace.loc.start.line)
@@ -366,8 +366,8 @@ const
                         data: { keyword: 'case' },
                         fix: fixer => fixer.replaceTextRange(
                             [colon.range[1], brace.range[0]],
-                            ' ',
-                        ),
+                            ' '
+                        )
                     });
                 };
 
@@ -387,25 +387,25 @@ const
                 SwitchCase: node => {
                     if(node.consequent.length === 1 && node.consequent[0].type === 'BlockStatement')
                         checkColonBeforeBlock(node.consequent[0]);
-                },
+                }
             };
-        },
+        }
     },
 
     getTernaryQuestionToken = (node, sourceCode) =>
         sourceCode.getFirstTokenBetween(node.test, node.consequent, {
-            filter: token => token.value === '?',
+            filter: token => token.value === '?'
         })
     ?? sourceCode.getTokenBefore(node.consequent, {
-        filter: token => token.value === '?',
+        filter: token => token.value === '?'
     }),
 
     getTernaryColonToken = (node, sourceCode) =>
         sourceCode.getLastTokenBetween(node.consequent, node.alternate, {
-            filter: token => token.value === ':',
+            filter: token => token.value === ':'
         })
     ?? sourceCode.getTokenBefore(node.alternate, {
-        filter: token => token.value === ':',
+        filter: token => token.value === ':'
     }),
 
     getTernaryChainRoot = node => {
@@ -450,7 +450,7 @@ const
         meta: {
             type: 'layout',
             docs: {
-                description: 'Disallow multiple spaces except pattern-matching ternary alignment padding.',
+                description: 'Disallow multiple spaces except pattern-matching ternary alignment padding.'
             },
             fixable: 'whitespace',
             schema: [
@@ -459,15 +459,15 @@ const
                     properties: {
                         ignoreEOLComments: {
                             type: 'boolean',
-                            default: false,
-                        },
+                            default: false
+                        }
                     },
-                    additionalProperties: false,
-                },
+                    additionalProperties: false
+                }
             ],
             messages: {
-                multipleSpaces: 'Multiple spaces found before \'{{displayValue}}\'.',
-            },
+                multipleSpaces: 'Multiple spaces found before \'{{displayValue}}\'.'
+            }
         },
         create: context => {
             const
@@ -505,19 +505,19 @@ const
                             node: rightToken,
                             loc: {
                                 start: leftToken.loc.end,
-                                end: rightToken.loc.start,
+                                end: rightToken.loc.start
                             },
                             messageId: 'multipleSpaces',
                             data: { displayValue: rightToken.value },
                             fix: fixer => fixer.replaceTextRange(
                                 [leftToken.range[1], rightToken.range[0]],
-                                ' ',
-                            ),
+                                ' '
+                            )
                         });
                     }
-                },
+                }
             };
-        },
+        }
     },
 
     tokenStartsLine = (token, sourceCode) => {
@@ -530,7 +530,7 @@ const
         meta: {
             type: 'layout',
             docs: {
-                description: 'Enforce multiline ternary layout, with an exception for pattern-matching style.',
+                description: 'Enforce multiline ternary layout, with an exception for pattern-matching style.'
             },
             schema: [],
             messages: {
@@ -539,8 +539,8 @@ const
                 standardQuestionLine: 'Put `?` at the beginning of a new line in multiline ternaries.',
                 standardColonLine: 'Put `:` at the beginning of a new line in multiline ternaries.',
                 standardTestBeforeQuestion: 'Put the test on the line(s) before `?` in multiline ternaries.',
-                ambiguous: 'Use either standard multiline ternaries or pattern-matching alignment, not both.',
-            },
+                ambiguous: 'Use either standard multiline ternaries or pattern-matching alignment, not both.'
+            }
         },
         create: context => {
             const
@@ -563,7 +563,7 @@ const
                             context.report({
                                 node: colon,
                                 messageId: 'patternColonAlign',
-                                data: { column: middleColonColumn },
+                                data: { column: middleColonColumn }
                             });
                 
 
@@ -571,7 +571,7 @@ const
                             context.report({
                                 node: innerQuestion,
                                 messageId: 'patternQuestionAlign',
-                                data: { column: questionColumn },
+                                data: { column: questionColumn }
                             });
                 
 
@@ -584,7 +584,7 @@ const
                         context.report({
                             node: finalColon,
                             messageId: 'patternColonAlign',
-                            data: { column: questionColumn },
+                            data: { column: questionColumn }
                         });
             
                 },
@@ -603,27 +603,27 @@ const
                         && question.loc.start.line === node.test.loc.start.line)
                                 context.report({
                                     node: question,
-                                    messageId: 'standardTestBeforeQuestion',
+                                    messageId: 'standardTestBeforeQuestion'
                                 });
                     
                             else if(node.test.loc.end.line >= question.loc.start.line)
                                 context.report({
                                     node: question,
-                                    messageId: 'standardTestBeforeQuestion',
+                                    messageId: 'standardTestBeforeQuestion'
                                 });
                     
 
                             if(!tokenStartsLine(question, sourceCode))
                                 context.report({
                                     node: question,
-                                    messageId: 'standardQuestionLine',
+                                    messageId: 'standardQuestionLine'
                                 });
                     
 
                             if(!tokenStartsLine(colon, sourceCode))
                                 context.report({
                                     node: colon,
-                                    messageId: 'standardColonLine',
+                                    messageId: 'standardColonLine'
                                 });
                     
                         }
@@ -631,21 +631,21 @@ const
                             if(!tokenStartsLine(colon, sourceCode))
                                 context.report({
                                     node: colon,
-                                    messageId: 'standardColonLine',
+                                    messageId: 'standardColonLine'
                                 });
                     
 
                             if(question.loc.start.line <= node.test.loc.end.line)
                                 context.report({
                                     node: question,
-                                    messageId: 'standardQuestionLine',
+                                    messageId: 'standardQuestionLine'
                                 });
                     
 
                             if(!tokenStartsLine(question, sourceCode))
                                 context.report({
                                     node: question,
-                                    messageId: 'standardQuestionLine',
+                                    messageId: 'standardQuestionLine'
                                 });
                     
                         }
@@ -675,15 +675,15 @@ const
                     else if(question.loc.start.line === root.test.loc.end.line)
                         context.report({
                             node: root,
-                            messageId: 'ambiguous',
+                            messageId: 'ambiguous'
                         });
                 
 
                     else
                         validateStandard(root);
-                },
+                }
             };
-        },
+        }
     },
 
     isVoidReturnType = node =>
@@ -753,14 +753,14 @@ const
         meta: {
             type: 'layout',
             docs: {
-                description: 'Disallow block bodies on arrow functions with a single expression statement, and require `void` when a concise body would change a `: void` signature.',
+                description: 'Disallow block bodies on arrow functions with a single expression statement, and require `void` when a concise body would change a `: void` signature.'
             },
             fixable: 'code',
             schema: [],
             messages: {
                 concise: 'Remove braces around the single expression in this arrow function body.',
-                voidWrap: 'Wrap the expression with `void` to preserve the `: void` return type.',
-            },
+                voidWrap: 'Wrap the expression with `void` to preserve the `: void` return type.'
+            }
         },
         create: context => {
             const
@@ -768,7 +768,7 @@ const
 
                 reportConciseBody = (arrowNode, expression, bodyNode, messageId = 'concise') => {
                     const arrow = sourceCode.getTokenBefore(bodyNode, {
-                        filter: token => token.value === '=>',
+                        filter: token => token.value === '=>'
                     });
 
                     if(!arrow)
@@ -779,8 +779,8 @@ const
                         messageId,
                         fix: fixer => fixer.replaceTextRange(
                             [arrow.range[1], bodyNode.range[1]],
-                            formatConciseExpression(context, arrowNode, expression, sourceCode),
-                        ),
+                            formatConciseExpression(context, arrowNode, expression, sourceCode)
+                        )
                     });
                 },
 
@@ -789,8 +789,8 @@ const
                     messageId: 'voidWrap',
                     fix: fixer => fixer.replaceText(
                         expression,
-                        formatVoidWrap(expression, sourceCode),
-                    ),
+                        formatVoidWrap(expression, sourceCode)
+                    )
                 });
 
             return {
@@ -819,9 +819,9 @@ const
                         return;
 
                     reportConciseBody(node, expression, node.body);
-                },
+                }
             };
-        },
+        }
     };
 
 export default {
@@ -832,7 +832,7 @@ export default {
         'newline-after-var-kind': newlineAfterVarKind,
         'space-before-else-catch-do-braces': spaceBeforeElseCatchDoBraces,
         'ternary-linebreak': ternaryLinebreak,
-        'no-multi-spaces': noMultiSpacesExceptPatternTernary,
-    },
+        'no-multi-spaces': noMultiSpacesExceptPatternTernary
+    }
 };
 

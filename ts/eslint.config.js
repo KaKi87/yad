@@ -14,19 +14,20 @@ const
         local: localRules,
         'prefer-arrow-functions': preferArrowFunctions,
         'simple-import-sort': simpleImportSort,
-        unicorn,
+        unicorn
     },
 
     rules = {
         'arrow-body-style': [
             'error',
             'as-needed',
-            { requireReturnForObjectLiteral: false },
+            { requireReturnForObjectLiteral: false }
         ],
         'array-bracket-spacing': ['error', 'never'],
         'arrow-parens': ['error', 'as-needed'],
         'arrow-spacing': ['error', { before: true, after: true }],
         'brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
+        'comma-dangle': ['error', 'never'],
         'comma-spacing': ['error', { before: false, after: true }],
         'computed-property-spacing': ['error', 'never'],
         curly: ['error', 'multi'],
@@ -38,9 +39,9 @@ const
             {
                 SwitchCase: 1,
                 ignoredNodes: [
-                    'ConditionalExpression',
-                ],
-            },
+                    'ConditionalExpression'
+                ]
+            }
         ],
         'key-spacing': ['error', { beforeColon: false, afterColon: true }],
         'keyword-spacing': [
@@ -53,9 +54,9 @@ const
                     for: { after: false },
                     while: { after: false },
                     switch: { after: false },
-                    catch: { after: false },
-                },
-            },
+                    catch: { after: false }
+                }
+            }
         ],
         'linebreak-style': ['error', 'unix'],
         'local/no-multi-spaces': ['error', { ignoreEOLComments: false }],
@@ -64,12 +65,12 @@ const
             'error',
             {
                 selector: 'ClassDeclaration',
-                message: 'Classes are forbidden by project style.',
+                message: 'Classes are forbidden by project style.'
             },
             {
                 selector: 'ClassExpression',
-                message: 'Classes are forbidden by project style.',
-            },
+                message: 'Classes are forbidden by project style.'
+            }
         ],
         'object-curly-newline': [
             'error',
@@ -77,8 +78,8 @@ const
                 ImportDeclaration: { multiline: true, minProperties: 2, consistent: true },
                 ExportDeclaration: { multiline: true, minProperties: 2, consistent: true },
                 ObjectExpression: { multiline: true, consistent: true },
-                ObjectPattern: { multiline: true, consistent: true },
-            },
+                ObjectPattern: { multiline: true, consistent: true }
+            }
         ],
         'object-curly-spacing': ['error', 'always'],
         'object-shorthand': ['error', 'always'],
@@ -87,8 +88,8 @@ const
             {
                 const: 'consecutive',
                 let: 'consecutive',
-                var: 'consecutive',
-            },
+                var: 'consecutive'
+            }
         ],
         'operator-linebreak': [
             'error',
@@ -96,9 +97,9 @@ const
             {
                 overrides: {
                     '?': 'ignore',
-                    ':': 'ignore',
-                },
-            },
+                    ':': 'ignore'
+                }
+            }
         ],
         'multiline-ternary': 'off',
         'prefer-template': 'error',
@@ -108,8 +109,8 @@ const
             'single',
             {
                 avoidEscape: true,
-                allowTemplateLiterals: true,
-            },
+                allowTemplateLiterals: true
+            }
         ],
         semi: ['error', 'always'],
         'semi-spacing': ['error', { before: false, after: true }],
@@ -118,8 +119,8 @@ const
             {
                 functions: 'always',
                 keywords: 'never',
-                classes: 'never',
-            },
+                classes: 'never'
+            }
         ],
         'space-before-function-paren': ['error', 'always'],
         'space-in-parens': ['error', 'never'],
@@ -132,8 +133,8 @@ const
             {
                 argsIgnorePattern: '^_',
                 varsIgnorePattern: '^_',
-                caughtErrorsIgnorePattern: '^_',
-            },
+                caughtErrorsIgnorePattern: '^_'
+            }
         ],
         'prefer-arrow-functions/prefer-arrow-functions': [
             'error',
@@ -144,8 +145,8 @@ const
                 classPropertiesAllowed: false,
                 disallowPrototype: false,
                 returnStyle: 'unchanged',
-                singleReturnOnly: false,
-            },
+                singleReturnOnly: false
+            }
         ],
         'simple-import-sort/imports': [
             'error',
@@ -154,9 +155,9 @@ const
                     ['^bun(?::|$)', '^node:', '^@std/'],
                     ['^@?\\w'],
                     ['^\\.\\.(?:/|$)'],
-                    ['^\\./'],
-                ],
-            },
+                    ['^\\./']
+                ]
+            }
         ],
         'unicorn/switch-case-braces': ['error', 'always'],
 
@@ -165,40 +166,40 @@ const
         'local/merge-consecutive-export-const': 'error',
         'local/newline-after-var-kind': 'error',
         'local/space-before-else-catch-do-braces': 'error',
-        'local/ternary-linebreak': 'error',
+        'local/ternary-linebreak': 'error'
     };
 
 export default [
     {
         files: [
-            '**/*.ts',
+            '**/*.ts'
         ],
         languageOptions: {
             parser: tsParser,
             parserOptions: {
                 ecmaVersion: 'latest',
                 sourceType: 'module',
-                project: './tsconfig.json',
-            },
+                project: './tsconfig.json'
+            }
         },
         plugins,
-        rules,
+        rules
     },
     {
         files: [
-            '**/*.js',
+            '**/*.js'
         ],
         languageOptions: {
             parser: tsParser,
             parserOptions: {
                 ecmaVersion: 'latest',
-                sourceType: 'module',
-            },
+                sourceType: 'module'
+            }
         },
         plugins,
         rules: {
             ...rules,
-            'local/export-top-and-kind-order': 'off',
-        },
-    },
+            'local/export-top-and-kind-order': 'off'
+        }
+    }
 ];

@@ -3,11 +3,11 @@ import type {
     CommonOptions,
     FileFilter,
     MimeFilter,
-    YadButton,
+    YadButton
 } from '../types/common.ts';
 import type {
     DialogMode,
-    DialogOptionsMap,
+    DialogOptionsMap
 } from '../types/dialogs.ts';
 
 export const
@@ -51,7 +51,7 @@ export const
     formatFormField = (
         label: string,
         tooltip?: string,
-        type?: string,
+        type?: string
     ): string => {
         const base = tooltip ? `${label}!${tooltip}` : label;
         return type ? `${base}:${type}` : base;
@@ -60,7 +60,7 @@ export const
     formatListColumn = (
         name: string,
         tooltip?: string,
-        type?: string,
+        type?: string
     ): string => {
         const header = tooltip ? `${name}!${tooltip}` : name;
         return type ? `${header}:${type}` : header;
@@ -68,14 +68,14 @@ export const
 
     formatListRow = (
         cells: string[],
-        separator = '|',
+        separator = '|'
     ): string => cells.join(separator),
 
     formatTreeRow = (
         rowId: string,
         parentId: string | undefined,
         cells: string[],
-        separator = '|',
+        separator = '|'
     ): string => {
         const prefix = parentId !== undefined ? `${rowId}:${parentId}` : rowId;
         return `${prefix}${separator}${cells.join(separator)}`;
@@ -88,14 +88,14 @@ export const
         label: string,
         id: ButtonId,
         icon?: string,
-        tooltip?: string,
+        tooltip?: string
     ): YadButton => ({ label, id, icon, tooltip });
 
 export const
     buildDialogArgs = <M extends DialogMode>(
         mode: M,
         options: DialogOptionsMap[M],
-        extra?: { stdin?: string; positional?: string[] },
+        extra?: { stdin?: string; positional?: string[] }
     ): string[] => {
         const
             built = buildModeArgs(mode, options),
@@ -107,7 +107,7 @@ export const
     resolveStdin = <M extends DialogMode>(
         mode: M,
         options: DialogOptionsMap[M],
-        extra?: string,
+        extra?: string
     ): string | undefined => {
         const built = buildModeArgs(mode, options);
         return extra ?? built.stdin;
@@ -155,7 +155,7 @@ const
         'sticky', 'fixed', 'center', 'mouse', 'onTop', 'undecorated', 'skipTaskbar',
         'maximized', 'fullscreen', 'noFocus', 'closeOnUnfocus', 'keepIconSize',
         'noMarkup', 'selectableLabels', 'noButtons', 'noEscape', 'escapeOk',
-        'alwaysPrintResult', 'enableSpell', 'addPreview', 'largePreview',
+        'alwaysPrintResult', 'enableSpell', 'addPreview', 'largePreview'
     ]),
 
     COMMON_VALUE_MAP: Record<string, string> = {
@@ -187,7 +187,7 @@ const
         css: '--css',
         rest: '--rest',
         spellLang: '--spell-lang',
-        boolFmt: '--bool-fmt',
+        boolFmt: '--bool-fmt'
     },
 
     MODE_FLAGS: Record<DialogMode, string | null> = {
@@ -213,12 +213,12 @@ const
         scale: '--scale',
         'text-info': '--text-info',
         paned: '--paned',
-        picture: '--picture',
+        picture: '--picture'
     },
 
     buildModeArgs = <M extends DialogMode>(
         mode: M,
-        options: DialogOptionsMap[M],
+        options: DialogOptionsMap[M]
     ): { args: string[]; positional: string[]; stdin?: string } => {
         const
             args = buildCommonArgs(options as CommonOptions),

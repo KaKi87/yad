@@ -1,19 +1,19 @@
 import {
     describe,
     expect,
-    test,
+    test
 } from 'bun:test';
 
 import {
     validateCreateYadOptions,
-    validateDialogOptions,
+    validateDialogOptions
 } from '../src/validation/schemas.ts';
 
 describe('validateCreateYadOptions', () => {
     test('accepts empty options', () => expect(validateCreateYadOptions()).toEqual({}));
 
     test('accepts custom path', () => expect(validateCreateYadOptions({ path: '/usr/bin/yad' })).toEqual({
-        path: '/usr/bin/yad',
+        path: '/usr/bin/yad'
     }));
 
     test('rejects unknown keys', () => expect(() => validateCreateYadOptions({ unknown: true } as never)).toThrow(/Invalid createYad/));
@@ -24,7 +24,7 @@ describe('validateDialogOptions', () => {
 
     test('accepts valid form', () => {
         const options = validateDialogOptions('form', {
-            fields: [{ label: 'Name' }],
+            fields: [{ label: 'Name' }]
         });
         expect(options.fields).toHaveLength(1);
     });
@@ -36,16 +36,16 @@ describe('validateDialogOptions', () => {
     test('validates notebook requires key and tabs', () => {
         const options = validateDialogOptions('notebook', {
             key: 1,
-            tabs: [{ label: 'Tab 1' }],
+            tabs: [{ label: 'Tab 1' }]
         });
         expect(options).toEqual({
             key: 1,
-            tabs: [{ label: 'Tab 1' }],
+            tabs: [{ label: 'Tab 1' }]
         });
     });
 
     test('rejects unknown common option', () => expect(() => validateDialogOptions('message', {
         text: 'hi',
-        bogus: true,
+        bogus: true
     } as never)).toThrow(/Invalid message/));
 });

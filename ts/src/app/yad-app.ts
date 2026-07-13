@@ -2,16 +2,16 @@ import type { CommonOptions } from '../types/common.ts';
 import type {
     DialogOptionsMap,
     FormField,
-    ListColumn,
+    ListColumn
 } from '../types/dialogs.ts';
 import {
     ExitCode,
-    StockButton,
+    StockButton
 } from '../types/exit-codes.ts';
 import type {
     ParsedFormResult,
     YadDialogResult,
-    YadProcess,
+    YadProcess
 } from '../types/results.ts';
 
 import {
@@ -20,11 +20,11 @@ import {
     type ProgressHandle,
     type ProgressRunnerOptions,
     type TrayHandle,
-    type TrayRunnerOptions,
+    type TrayRunnerOptions
 } from './long-running.ts';
 import {
     createWizard,
-    type WizardStep,
+    type WizardStep
 } from './wizard.ts';
 
 export type YadAppBackend = {
@@ -82,7 +82,7 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
         state: Record<string, unknown> = {},
         withDefaults = <T extends CommonOptions>(options: T): T => ({
             ...defaults,
-            ...options,
+            ...options
         }),
         set = <K extends string>(key: K, value: unknown): void => void (state[key] = value),
         get = <T>(key: string, fallback?: T): T | undefined =>
@@ -98,14 +98,14 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
                     hideText: opts.password,
                     numeric: opts.numeric,
                     items: opts.items,
-                    timeout: defaults.timeout,
+                    timeout: defaults.timeout
                 }));
 
             return result.ok ? result.value : null;
         },
         ask = async (
             text: string,
-            options: Omit<DialogOptionsMap['message'], 'text'> = {},
+            options: Omit<DialogOptionsMap['message'], 'text'> = {}
         ): Promise<boolean> => {
             const result = await yad.question(text, withDefaults(options));
             return result.exitCode === ExitCode.ok;
@@ -113,7 +113,7 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
         alert = async (
             text: string,
             level: 'info' | 'warning' | 'error' = 'info',
-            options: Omit<DialogOptionsMap['message'], 'text'> = {},
+            options: Omit<DialogOptionsMap['message'], 'text'> = {}
         ): Promise<void> => {
             const fn = level === 'warning' ? yad.warning
                      : level === 'error'   ? yad.error
@@ -121,7 +121,7 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
             await fn(text, withDefaults(options));
         },
         pickFile = async (
-            options: Omit<DialogOptionsMap['file'], keyof CommonOptions> & CommonOptions = {},
+            options: Omit<DialogOptionsMap['file'], keyof CommonOptions> & CommonOptions = {}
         ): Promise<string | string[] | null> => {
             const result = await yad.file(withDefaults(options));
             return result.ok ? result.value as string | string[] : null;
@@ -135,7 +135,7 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
                 rows: options.rows,
                 multiple: options.multiple,
                 checklist: options.checklist,
-                radiolist: options.radiolist,
+                radiolist: options.radiolist
             }));
 
             if(!result.ok || !result.value)
@@ -159,7 +159,7 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
                     const result = await yad.form(withDefaults({
                         ...options,
                         fields,
-                        values: fields.map(f => values[f.label] ?? f.value ?? ''),
+                        values: fields.map(f => values[f.label] ?? f.value ?? '')
                     }));
 
                     if(!result.ok || !result.value)
@@ -167,18 +167,18 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
 
                     merge(result.value.byLabel);
                     return result.value.byLabel;
-                },
+                }
             };
         },
         form = async (
             fields: FormField[],
-            options: Omit<DialogOptionsMap['form'], 'fields'> = {},
+            options: Omit<DialogOptionsMap['form'], 'fields'> = {}
         ): Promise<Record<string, string> | null> =>
             buildForm([...fields]).show(options),
         wizard = (steps: WizardStep[]) =>
             createWizard({ yad, defaults, state, steps, withDefaults }),
         flow = async <T>(
-            steps: Array<(ctx: { state: Record<string, unknown> }) => Promise<T | null>>,
+            steps: Array<(ctx: { state: Record<string, unknown> }) => Promise<T | null>>
         ): Promise<T | null> => {
             for(const step of steps){
                 const result = await step({ state });
@@ -188,25 +188,25 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
             return state as T;
         },
         notify = async (
-            options: DialogOptionsMap['notification'] & { text?: string },
+            options: DialogOptionsMap['notification'] & { text?: string }
         ) => yad.notification(withDefaults({
             listen: true,
-            ...options,
+            ...options
         })),
         progress = async (
-            options: DialogOptionsMap['progress'] = {},
+            options: DialogOptionsMap['progress'] = {}
         ) => yad.progress(withDefaults({
             autoClose: true,
-            ...options,
+            ...options
         })),
         runProgress = async (
-            options: ProgressRunnerOptions,
+            options: ProgressRunnerOptions
         ): Promise<ProgressHandle> => {
             const
                 { onReady, ...progressOptions } = options,
                 proc = await yad.progress(withDefaults({
                     autoClose: true,
-                    ...progressOptions,
+                    ...progressOptions
                 })) as YadProcess,
                 handle = createProgressHandle(proc);
 
@@ -216,13 +216,13 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
             return handle;
         },
         runTray = async (
-            options: TrayRunnerOptions = {},
+            options: TrayRunnerOptions = {}
         ): Promise<TrayHandle> => {
             const
                 { onReady, ...trayOptions } = options,
                 proc = await yad.notification(withDefaults({
                     listen: true,
-                    ...trayOptions,
+                    ...trayOptions
                 })) as YadProcess,
                 handle = createTrayHandle(proc);
 
@@ -264,10 +264,10 @@ export const createYadApp = ({ yad, defaults = {} }: YadAppOptions) => {
                 text,
                 buttons: options?.buttons ?? [
                     { label: 'OK', id: StockButton.ok },
-                    { label: 'Cancel', id: StockButton.cancel },
-                ],
+                    { label: 'Cancel', id: StockButton.cancel }
+                ]
             }));
             return result.exitCode === ExitCode.ok;
-        },
+        }
     };
 };

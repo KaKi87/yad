@@ -1,7 +1,7 @@
 import type { CommonOptions } from '../types/common.ts';
 import type {
     FormField,
-    ListColumn,
+    ListColumn
 } from '../types/dialogs.ts';
 import { ExitCode } from '../types/exit-codes.ts';
 
@@ -80,7 +80,7 @@ export const createWizard = ({
     defaults,
     state,
     steps,
-    withDefaults,
+    withDefaults
 }: WizardOptions) => {
     const run = async (): Promise<WizardResult> => {
         for(let index = 0; index < steps.length; index++){
@@ -101,7 +101,7 @@ export const createWizard = ({
                     entryText: step.default,
                     hideText: step.password,
                     numeric: step.numeric,
-                    items: step.items,
+                    items: step.items
                 }));
 
                 if(!result.ok)
@@ -114,7 +114,7 @@ export const createWizard = ({
             if(step.type === 'form'){
                 const result = await yad.form(withDefaults({
                     title: step.title ?? defaults.title,
-                    fields: step.fields,
+                    fields: step.fields
                 }));
 
                 if(!result.ok || !result.value)
@@ -131,7 +131,7 @@ export const createWizard = ({
 
             if(step.type === 'confirm'){
                 const result = await yad.question(step.text, withDefaults({
-                    title: step.title ?? defaults.title,
+                    title: step.title ?? defaults.title
                 }));
 
                 if(result.exitCode !== ExitCode.ok)
@@ -147,7 +147,7 @@ export const createWizard = ({
                     rows: step.rows,
                     multiple: step.multiple,
                     checklist: step.checklist,
-                    radiolist: step.radiolist,
+                    radiolist: step.radiolist
                 }));
 
                 if(!result.ok || !result.value)
