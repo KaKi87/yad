@@ -24,7 +24,7 @@ In JavaScript and TypeScript files, respect the following code style instruction
   - `else`/`catch`/`case`/`finally`/`do` braces ;
   - `catch`/`while` braces when not preceded by parentheses ;
   - Template literal tag functions calls.
-- Spaces MUST be added after opening brackets and before closing brackets in objects, destructured objects and imports/exports.
+- Spaces MUST be added after opening braces and before closing braces in objects, destructured objects and imports/exports.
 - Spaces MUST NOT be added around :
   - Function call parentheses ;
   - `if`/`for`/`while`/`switch`/`catch` parentheses ;
