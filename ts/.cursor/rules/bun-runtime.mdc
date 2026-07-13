@@ -17,7 +17,7 @@ Use [Bun](https://bun.com) as the package manager, script runner, and runtime. D
 
 - Run TypeScript directly: `bun run mod.ts`, `bun mod.ts`, or `bun run <script>` from `package.json`.
 - Run tests with `bun test`.
-- Do not use `tsc`, `ts-node`, `tsx`, `esbuild`, `swc`, or `node` to compile or execute project code.
+- Do not use `tsc`, `ts-node`, `tsx`, `esbuild`, `swc`, or `node` to compile or execute project code. Do use the necessary tools for type-checking.
 
 ## TypeScript
 

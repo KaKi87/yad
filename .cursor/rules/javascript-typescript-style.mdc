@@ -1,6 +1,6 @@
 ---
 description: JavaScript and TypeScript code style
-globs: "**/*.{js,ts,jsx,tsx,mjs,cjs}"
+globs: **/*.js, **/*.ts, **/*.jsx, **/*.tsx, **/*.mjs, **/*.cjs
 alwaysApply: false
 ---
 
@@ -24,9 +24,8 @@ In JavaScript and TypeScript files, respect the following code style instruction
   - `else`/`catch`/`case`/`finally`/`do` braces ;
   - `catch`/`while` braces when not preceded by parentheses ;
   - Template literal tag functions calls.
-- Spaces MUST be added after opening brackets and before closing brackets in objects, destructured objects and imports.
+- Spaces MUST be added after opening brackets and before closing brackets in objects, destructured objects and imports/exports.
 - Spaces MUST NOT be added around :
-  - Arrow function declaration braces ;
   - Function call parentheses ;
   - `if`/`for`/`while`/`switch`/`catch` parentheses ;
   - `if`/`for`/`switch` braces ;
@@ -35,7 +34,7 @@ In JavaScript and TypeScript files, respect the following code style instruction
 - Spaces MUST NOT be added after opening brackets and before closing brackets in arrays and destructured arrays.
 - Spaces MUST NOT be added within parentheses.
 - Spaces MUST be added after and MUST NOT be added before commas, semicolons and colons.
-- Newlines MUST be added between multi-item import braces, though not necessarily for objects.
+- Newlines MUST be added between multi-item import/export braces, though not necessarily for objects.
 - Newlines MUST NOT be added before opening braces.
 - A newline MUST be added before `else` and `catch`.
 - Parentheses MUST NOT be added around single untyped arrow function arguments.
@@ -50,7 +49,8 @@ In JavaScript and TypeScript files, respect the following code style instruction
   - Destructuring ;
   - Template literals.
 
-Do fix code style gaps strictly within these rules when encountered during tasks, but only if can be committed immediately and completely separately from the task.
+Absolutely apply this code style for all new code.
+For existing code, do fix code style gaps strictly within these rules when encountered during tasks, but only if can be committed immediately and completely separately from the task.
 
 Also prefer the following coding patterns when possible :
 
