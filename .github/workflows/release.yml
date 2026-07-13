@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       source_ref:
-        description: Upstream branch or tag to build
+        description: Upstream branch, tag, or commit SHA to build
         required: false
         default: master
         type: string
@@ -39,17 +39,14 @@ jobs:
             runner: ubuntu-24.04-arm
 
     steps:
-      - name: Checkout upstream source
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.SOURCE_REF }}
-          fetch-depth: 1
+          ref: dev
+          fetch-depth: 0
 
-      - name: Import CI scripts from dev
-        run: |
-          git fetch --no-tags --depth=1 origin "${CI_REF}"
-          git checkout "origin/${CI_REF}" -- .ci
-          chmod +x .ci/*.sh
+      - name: Prepare upstream source tree
+        run: .ci/checkout-source.sh
 
       - name: Install build dependencies
         run: |
@@ -97,17 +94,14 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout upstream source
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.SOURCE_REF }}
-          fetch-depth: 1
+          ref: dev
+          fetch-depth: 0
 
-      - name: Import CI scripts from dev
-        run: |
-          git fetch --no-tags --depth=1 origin "${CI_REF}"
-          git checkout "origin/${CI_REF}" -- .ci
-          chmod +x .ci/*.sh
+      - name: Prepare upstream source tree
+        run: .ci/checkout-source.sh
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -149,17 +143,14 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout upstream source
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.SOURCE_REF }}
-          fetch-depth: 1
+          ref: dev
+          fetch-depth: 0
 
-      - name: Import CI scripts from dev
-        run: |
-          git fetch --no-tags --depth=1 origin "${CI_REF}"
-          git checkout "origin/${CI_REF}" -- .ci
-          chmod +x .ci/*.sh
+      - name: Prepare upstream source tree
+        run: .ci/checkout-source.sh
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
