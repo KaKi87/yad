@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       source_ref:
-        description: Upstream branch, commit SHA on master, or tag synced to this fork
+        description: Upstream branch, tag (from v1cont/yad or this fork), or commit SHA on master
         required: false
         default: master
         type: string
@@ -24,6 +24,7 @@ concurrency:
 env:
   SOURCE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.source_ref || 'master' }}
   CI_REF: dev
+  UPSTREAM_REPOSITORY: v1cont/yad
 
 jobs:
   build:
