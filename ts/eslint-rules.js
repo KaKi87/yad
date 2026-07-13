@@ -17,11 +17,11 @@ const
 
                 isExportVar = node =>
                     node?.type === 'ExportNamedDeclaration'
-            && node.declaration?.type === 'VariableDeclaration'
-            && ['const', 'let', 'var'].includes(node.declaration.kind)
-            && node.declaration.declarations?.length === 1
-            && node.specifiers?.length === 0
-            && node.source == null,
+                    && node.declaration?.type === 'VariableDeclaration'
+                    && ['const', 'let', 'var'].includes(node.declaration.kind)
+                    && node.declaration.declarations?.length === 1
+                    && node.specifiers?.length === 0
+                    && node.source == null,
 
                 getIndent = node => {
                     const line = sourceCode.lines[node.loc.start.line - 1] ?? '';
@@ -75,8 +75,8 @@ const
 
     isExportStatement = node =>
         node?.type === 'ExportNamedDeclaration'
-    || node?.type === 'ExportDefaultDeclaration'
-    || node?.type === 'ExportAllDeclaration',
+        || node?.type === 'ExportDefaultDeclaration'
+        || node?.type === 'ExportAllDeclaration',
 
     getExportKind = node => {
         if(node.type === 'ExportAllDeclaration')
@@ -108,7 +108,7 @@ const
             return [];
 
         return node.declaration.declarations.flatMap(declarator =>
-        declarator.id.type === 'Identifier' ? [declarator.id.name] : []
+            declarator.id.type === 'Identifier' ? [declarator.id.name] : []
         );
     },
 
@@ -383,17 +383,17 @@ const
         sourceCode.getFirstTokenBetween(node.test, node.consequent, {
             filter: token => token.value === '?'
         })
-    ?? sourceCode.getTokenBefore(node.consequent, {
-        filter: token => token.value === '?'
-    }),
+        ?? sourceCode.getTokenBefore(node.consequent, {
+            filter: token => token.value === '?'
+        }),
 
     getTernaryColonToken = (node, sourceCode) =>
         sourceCode.getLastTokenBetween(node.consequent, node.alternate, {
             filter: token => token.value === ':'
         })
-    ?? sourceCode.getTokenBefore(node.alternate, {
-        filter: token => token.value === ':'
-    }),
+        ?? sourceCode.getTokenBefore(node.alternate, {
+            filter: token => token.value === ':'
+        }),
 
     getTernaryChainRoot = node => {
         let current = node;
@@ -463,8 +463,8 @@ const
 
                 isPatternTernaryPadding = (leftToken, rightToken) =>
                     rightToken.value === '?'
-            && leftToken.loc.start.line === rightToken.loc.start.line
-            && sourceCode.lines[leftToken.loc.start.line - 1]?.includes(':');
+                    && leftToken.loc.start.line === rightToken.loc.start.line
+                    && sourceCode.lines[leftToken.loc.start.line - 1]?.includes(':');
 
             return {
                 Program: () => {
@@ -514,7 +514,226 @@ const
     tokenStartsLine = (token, sourceCode) => {
         const line = sourceCode.lines[token.loc.start.line - 1] ?? '';
 
-        return line.slice(0, token.loc.start.column).trim() === '';
+        return line.slice(0, token.loc.start.column - 1).trim() === '';
+    },
+
+    getLogicalRoot = node => {
+        let current = node;
+
+        while(current.parent?.type === 'LogicalExpression' && current.parent.left === current)
+            current = current.parent;
+
+        return current;
+    },
+
+    getNullishRoot = node => {
+        let current = node;
+
+        while(current.parent?.type === 'BinaryExpression'
+              && current.parent.operator === '??'
+              && current.parent.left === current)
+            current = current.parent;
+
+        return current;
+    },
+
+    isInsideParentheses = node => {
+        let current = node.parent;
+
+        while(current){
+            if(current.type === 'ParenthesizedExpression')
+                return true;
+
+            current = current.parent;
+        }
+
+        return false;
+    },
+
+    reportTokenAlign = (token, alignColumn, sourceCode, context) => {
+        const
+            line = sourceCode.lines[token.loc.start.line - 1] ?? '',
+            leadingLength = line.match(/^\s*/)?.[0].length ?? 0;
+
+        if(leadingLength + 1 !== token.loc.start.column || token.loc.start.column === alignColumn)
+            return;
+
+        const lineStartIndex = sourceCode.getIndexFromLoc({ line: token.loc.start.line, column: 1 });
+
+        context.report({
+            node: token,
+            messageId: 'align',
+            data: { column: alignColumn },
+            fix: fixer => fixer.replaceTextRange(
+                [lineStartIndex, lineStartIndex + leadingLength],
+                ' '.repeat(alignColumn - 1)
+            )
+        });
+    },
+
+    validateMultilineLogicalAlign = (node, sourceCode, context) => {
+        const root = getLogicalRoot(node);
+
+        if(root.loc.start.line === root.loc.end.line)
+            return;
+
+        const
+            alignColumn = sourceCode.getFirstToken(root).loc.start.column,
+            visit = expression => {
+                if(expression.type !== 'LogicalExpression')
+                    return;
+
+                if(expression.parent?.type === 'ParenthesizedExpression')
+                    return;
+
+                if(expression.loc.start.line === expression.loc.end.line)
+                    return;
+
+                visit(expression.left);
+                visit(expression.right);
+
+                const operatorToken = sourceCode.getTokenBefore(expression.right, {
+                    filter: token => token.value === expression.operator
+                });
+
+                if(operatorToken)
+                    reportTokenAlign(operatorToken, alignColumn, sourceCode, context);
+
+                if(
+                    expression.right.loc.start.line > expression.left.loc.end.line
+                    &&
+                    expression.right.type !== 'LogicalExpression'
+                    ||
+                    expression.right.loc.start.line !== expression.right.loc.end.line
+                )
+                    reportTokenAlign(sourceCode.getFirstToken(expression.right), alignColumn, sourceCode, context);
+            };
+
+        visit(root);
+    },
+
+    validateMultilineNullishAlign = (node, sourceCode, context) => {
+        const root = getNullishRoot(node);
+
+        if(root.loc.start.line === root.loc.end.line)
+            return;
+
+        const
+            alignColumn = sourceCode.getFirstToken(root).loc.start.column,
+            visit = expression => {
+                if(expression.type !== 'BinaryExpression' || expression.operator !== '??')
+                    return;
+
+                visit(expression.left);
+                visit(expression.right);
+
+                const operatorToken = sourceCode.getTokenBefore(expression.right, {
+                    filter: token => token.value === '??'
+                });
+
+                if(operatorToken)
+                    reportTokenAlign(operatorToken, alignColumn, sourceCode, context);
+
+                if(
+                    expression.right.loc.start.line > expression.left.loc.end.line
+                    &&
+                    expression.right.type !== 'BinaryExpression'
+                    ||
+                    expression.right.loc.start.line !== expression.right.loc.end.line
+                )
+                    reportTokenAlign(sourceCode.getFirstToken(expression.right), alignColumn, sourceCode, context);
+            };
+
+        visit(root);
+    },
+
+    getTernaryAlignColumn = (expression, sourceCode) => {
+        const testFirst = sourceCode.getFirstToken(expression.test);
+
+        if(tokenStartsLine(testFirst, sourceCode))
+            return testFirst.loc.start.column;
+
+        const lineIndent = (sourceCode.lines[expression.loc.start.line - 1] ?? '').match(/^\s*/)?.[0].length ?? 0;
+
+        return lineIndent + 4 + 1;
+    },
+
+    validateStandardTernaryAlign = (node, sourceCode, context) => {
+        const visit = expression => {
+            const
+                alignColumn = getTernaryAlignColumn(expression, sourceCode),
+                question = getTernaryQuestionToken(expression, sourceCode),
+                colon = getTernaryColonToken(expression, sourceCode);
+
+            if(question)
+                reportTokenAlign(question, alignColumn, sourceCode, context);
+
+            if(colon)
+                reportTokenAlign(colon, alignColumn, sourceCode, context);
+
+            if(expression.alternate.type === 'ConditionalExpression')
+                visit(expression.alternate);
+        };
+
+        visit(node);
+    },
+
+    multilineOperatorIndent = {
+        meta: {
+            type: 'layout',
+            docs: {
+                description: 'Align continuation operators with the start of multiline logical, nullish, and standard ternary expressions.'
+            },
+            fixable: 'whitespace',
+            schema: [],
+            messages: {
+                align: 'Align this token at column {{column}} with the start of the multiline expression.'
+            }
+        },
+        create: context => {
+            const sourceCode = context.sourceCode;
+
+            return {
+                LogicalExpression: node => {
+                    if(isInsideParentheses(node))
+                        return;
+
+                    const root = getLogicalRoot(node);
+
+                    if(root !== node)
+                        return;
+
+                    validateMultilineLogicalAlign(node, sourceCode, context);
+                },
+
+                BinaryExpression: node => {
+                    if(node.operator !== '??')
+                        return;
+
+                    const root = getNullishRoot(node);
+
+                    if(root !== node)
+                        return;
+
+                    validateMultilineNullishAlign(node, sourceCode, context);
+                },
+
+                ConditionalExpression: node => {
+                    if(node.loc.start.line === node.loc.end.line)
+                        return;
+
+                    const root = getTernaryChainRoot(node);
+
+                    if(root !== node)
+                        return;
+
+                    if(isPatternMatchingChain(root, sourceCode))
+                        return;
+
+                    validateStandardTernaryAlign(root, sourceCode, context);
+                }
+            };
+        }
     },
 
     ternaryLinebreak = {
@@ -690,12 +909,12 @@ const
 
     isUndefinedExpression = expression =>
         (expression.type === 'Literal' && expression.value === undefined)
-    || (expression.type === 'Identifier' && expression.name === 'undefined'),
+        || (expression.type === 'Identifier' && expression.name === 'undefined'),
 
     formatVoidWrap = (expression, sourceCode) => {
         const text = isVoidExpression(expression)
-        ? sourceCode.getText(expression.argument)
-        : sourceCode.getText(expression);
+            ? sourceCode.getText(expression.argument)
+            : sourceCode.getText(expression);
 
         return `void (${text})`;
     },
@@ -730,8 +949,8 @@ const
 
     formatConciseExpression = (context, arrowNode, expression, sourceCode) => {
         const text = changesVoidSignature(context, arrowNode, expression)
-        ? formatVoidWrap(expression, sourceCode)
-        : sourceCode.getText(expression);
+            ? formatVoidWrap(expression, sourceCode)
+            : sourceCode.getText(expression);
 
         return ` ${text}`;
     },
@@ -889,6 +1108,9 @@ const
     },
 
     validateMultilineLogicalInIfTest = (expression, sourceCode, context) => {
+        if(isInsideParentheses(expression))
+            return;
+
         if(expression.type !== 'LogicalExpression' || !isLogicalOperator(expression.operator))
             return;
 
@@ -954,6 +1176,7 @@ export default {
         'export-top-and-kind-order': exportTopAndKindOrder,
         'long-if-linebreak': longIfLinebreak,
         'merge-consecutive-export-const': mergeConsecutiveExportConst,
+        'multiline-operator-indent': multilineOperatorIndent,
         'newline-after-var-kind': newlineAfterVarKind,
         'space-before-else-catch-do-braces': spaceBeforeElseCatchDoBraces,
         'ternary-linebreak': ternaryLinebreak,

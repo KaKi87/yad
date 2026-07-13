@@ -169,6 +169,7 @@ const
         'local/export-top-and-kind-order': 'error',
         'local/long-if-linebreak': 'error',
         'local/merge-consecutive-export-const': 'error',
+        'local/multiline-operator-indent': 'error',
         'local/newline-after-var-kind': 'error',
         'local/space-before-else-catch-do-braces': 'error',
         'local/ternary-linebreak': 'error'
