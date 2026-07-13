@@ -34,10 +34,7 @@ const
                         kind = first.declaration.kind,
                         indent = getIndent(first),
                         declarators = run.map(n => sourceCode.getText(n.declaration.declarations[0])),
-                        merged
-                    = `${indent}export ${kind}\n${indent}    ${declarators[0]}${
-                        declarators.slice(1).map(d => `,\n${indent}    ${d}`).join('')
-                    };`;
+                        merged = `${indent}export ${kind}\n${indent}    ${declarators[0]}${declarators.slice(1).map(d => `,\n${indent}    ${d}`).join('')};`;
 
                     context.report({
                         node: run[1],
