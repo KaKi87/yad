@@ -1,0 +1,14 @@
+{
+  "name": "yad.ts",
+  "module": "mod.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "joi": "^18.2.3"
+  }
+}
