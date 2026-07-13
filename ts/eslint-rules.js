@@ -62,7 +62,7 @@ const
                                 mergeRun(run);
                             run = isExportVar(node) ? [node] : [];
                         }
-                
+
 
                     if(run.length >= 2)
                         mergeRun(run);
@@ -132,7 +132,7 @@ const
                         value.forEach(visit);
                     else if(value && typeof value.type === 'string')
                         visit(value);
-        
+
             };
 
         if(node.type !== 'ExportNamedDeclaration' || node.declaration?.type !== 'VariableDeclaration')
@@ -141,7 +141,7 @@ const
         for(const declarator of node.declaration.declarations)
             if(declarator.init)
                 visit(declarator.init);
-    
+
 
         return references;
     },
@@ -158,7 +158,7 @@ const
         for(const name of priorLetNames)
             if(references.has(name))
                 return true;
-    
+
 
         return false;
     },
@@ -186,7 +186,7 @@ const
                 for(let index = 0; index < entries.length; index++)
                     if(isExportStatement(entries[index]))
                         exportIndices.push(index);
-            
+
 
                 if(!exportIndices.length)
                     return;
@@ -200,7 +200,7 @@ const
                         node: entries[index],
                         messageId: 'codeBeforeExports'
                     });
-            
+
 
                 for(let index = firstExportIndex + 1; index < lastExportIndex; index++)
                     if(!isExportStatement(entries[index]))
@@ -208,8 +208,8 @@ const
                             node: entries[index],
                             messageId: 'splitsExports'
                         });
-                
-            
+
+
 
                 for(let index = lastExportIndex + 1; index < entries.length; index++)
                     if(isExportStatement(entries[index]))
@@ -217,8 +217,8 @@ const
                             node: entries[index],
                             messageId: 'exportAfterCode'
                         });
-                
-            
+
+
 
                 const exportNodes = exportIndices.map(index => entries[index]);
                 let
@@ -238,7 +238,7 @@ const
                                 priorKind: maxRankLabel
                             }
                         });
-                
+
 
                     if(rank >= maxRank){
                         maxRank = rank;
@@ -248,7 +248,7 @@ const
                     if(label === 'let')
                         for(const name of getExportedBindingNames(node))
                             priorLetNames.add(name);
-                
+
                 }
             }
         })
@@ -565,7 +565,7 @@ const
                                 messageId: 'patternColonAlign',
                                 data: { column: middleColonColumn }
                             });
-                
+
 
                         if(innerQuestion.loc.start.column !== questionColumn)
                             context.report({
@@ -573,7 +573,7 @@ const
                                 messageId: 'patternQuestionAlign',
                                 data: { column: questionColumn }
                             });
-                
+
 
                         current = inner;
                     }
@@ -586,7 +586,7 @@ const
                             messageId: 'patternColonAlign',
                             data: { column: questionColumn }
                         });
-            
+
                 },
 
                 validateStandard = root => {
@@ -605,27 +605,27 @@ const
                                     node: question,
                                     messageId: 'standardTestBeforeQuestion'
                                 });
-                    
+
                             else if(node.test.loc.end.line >= question.loc.start.line)
                                 context.report({
                                     node: question,
                                     messageId: 'standardTestBeforeQuestion'
                                 });
-                    
+
 
                             if(!tokenStartsLine(question, sourceCode))
                                 context.report({
                                     node: question,
                                     messageId: 'standardQuestionLine'
                                 });
-                    
+
 
                             if(!tokenStartsLine(colon, sourceCode))
                                 context.report({
                                     node: colon,
                                     messageId: 'standardColonLine'
                                 });
-                    
+
                         }
                         else {
                             if(!tokenStartsLine(colon, sourceCode))
@@ -633,21 +633,21 @@ const
                                     node: colon,
                                     messageId: 'standardColonLine'
                                 });
-                    
+
 
                             if(question.loc.start.line <= node.test.loc.end.line)
                                 context.report({
                                     node: question,
                                     messageId: 'standardQuestionLine'
                                 });
-                    
+
 
                             if(!tokenStartsLine(question, sourceCode))
                                 context.report({
                                     node: question,
                                     messageId: 'standardQuestionLine'
                                 });
-                    
+
                         }
 
                         if(node.alternate.type === 'ConditionalExpression')
@@ -677,7 +677,7 @@ const
                             node: root,
                             messageId: 'ambiguous'
                         });
-                
+
 
                     else
                         validateStandard(root);
