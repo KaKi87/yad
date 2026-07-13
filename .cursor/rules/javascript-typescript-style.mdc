@@ -124,6 +124,14 @@ const compareNumbers = (
            : 'A and B are equal';
 ```
 
+Or, for a variable declaration :
+
+```ts
+const comparisonResult = a > b ? 'A is greater than B'
+                       : b > a ? 'B is greater than A'
+                               : 'A and B are equal';
+```
+
 This specific pattern's code style overrides the above rules.
 
 ## Use `Promise`-based pipelines
