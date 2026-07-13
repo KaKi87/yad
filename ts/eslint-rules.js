@@ -63,7 +63,6 @@ const
                             run = isExportVar(node) ? [node] : [];
                         }
 
-
                     if(run.length >= 2)
                         mergeRun(run);
                 }
@@ -142,7 +141,6 @@ const
             if(declarator.init)
                 visit(declarator.init);
 
-
         return references;
     },
 
@@ -158,7 +156,6 @@ const
         for(const name of priorLetNames)
             if(references.has(name))
                 return true;
-
 
         return false;
     },
@@ -187,7 +184,6 @@ const
                     if(isExportStatement(entries[index]))
                         exportIndices.push(index);
 
-
                 if(!exportIndices.length)
                     return;
 
@@ -201,7 +197,6 @@ const
                         messageId: 'codeBeforeExports'
                     });
 
-
                 for(let index = firstExportIndex + 1; index < lastExportIndex; index++)
                     if(!isExportStatement(entries[index]))
                         context.report({
@@ -209,16 +204,12 @@ const
                             messageId: 'splitsExports'
                         });
 
-
-
                 for(let index = lastExportIndex + 1; index < entries.length; index++)
                     if(isExportStatement(entries[index]))
                         context.report({
                             node: entries[index],
                             messageId: 'exportAfterCode'
                         });
-
-
 
                 const exportNodes = exportIndices.map(index => entries[index]);
                 let
@@ -238,7 +229,6 @@ const
                                 priorKind: maxRankLabel
                             }
                         });
-
 
                     if(rank >= maxRank){
                         maxRank = rank;
@@ -566,14 +556,12 @@ const
                                 data: { column: middleColonColumn }
                             });
 
-
                         if(innerQuestion.loc.start.column !== questionColumn)
                             context.report({
                                 node: innerQuestion,
                                 messageId: 'patternQuestionAlign',
                                 data: { column: questionColumn }
                             });
-
 
                         current = inner;
                     }
@@ -612,13 +600,11 @@ const
                                     messageId: 'standardTestBeforeQuestion'
                                 });
 
-
                             if(!tokenStartsLine(question, sourceCode))
                                 context.report({
                                     node: question,
                                     messageId: 'standardQuestionLine'
                                 });
-
 
                             if(!tokenStartsLine(colon, sourceCode))
                                 context.report({
@@ -634,13 +620,11 @@ const
                                     messageId: 'standardColonLine'
                                 });
 
-
                             if(question.loc.start.line <= node.test.loc.end.line)
                                 context.report({
                                     node: question,
                                     messageId: 'standardQuestionLine'
                                 });
-
 
                             if(!tokenStartsLine(question, sourceCode))
                                 context.report({
@@ -677,7 +661,6 @@ const
                             node: root,
                             messageId: 'ambiguous'
                         });
-
 
                     else
                         validateStandard(root);
@@ -835,4 +818,3 @@ export default {
         'no-multi-spaces': noMultiSpacesExceptPatternTernary
     }
 };
-

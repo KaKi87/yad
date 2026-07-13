@@ -113,7 +113,6 @@ export const
         return extra ?? built.stdin;
     };
 
-
 const
     camelToKebab = (key: string): string =>
         key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`),
