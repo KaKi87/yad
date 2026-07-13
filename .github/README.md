@@ -1,3 +1,9 @@
+[![](https://shields.kaki87.net/badge/github.com-main-blue?style=flat&logo=github)](https://github.com/KaKi87/yad)
+[![](https://shields.kaki87.net/github/stars/KaKi87/yad)](https://github.com/KaKi87/yad)
+
+[![](https://shields.kaki87.net/badge/git.kaki87.net-mirror-green?style=flat&logo=forgejo)](https://git.kaki87.net/KaKi87/yad)
+[![](https://shields.kaki87.net/gitea/stars/KaKi87/yad?gitea_url=https%3A%2F%2Fgit.kaki87.net&logo=forgejo)](https://git.kaki87.net/KaKi87/yad)
+
 # Yet Another Dialog (YAD), AI-augmented
 
 Original `README.md` :
