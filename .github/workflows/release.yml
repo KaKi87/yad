@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       source_ref:
-        description: Upstream branch, tag, or commit SHA to build
+        description: Upstream branch, commit SHA on master, or tag synced to this fork
         required: false
         default: master
         type: string
