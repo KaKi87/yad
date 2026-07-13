@@ -41,7 +41,7 @@ In JavaScript and TypeScript files, respect the following code style instruction
 - Braces MUST be added around `case` blocks.
 - Braces MUST NOT be added around single `if`/`else`/`for`/`while` instructions.
 - Arrow functions MUST be prioritized over regular functions.
-- Sequential `const` and `let` variables MUST be combined within a single comma-separated declaration.
+- Sequential `const` and `let` variables MUST be combined within a single declaration, separated by comma & newline, the first item on a newline as well.
 - Do not use `Class`.
 - Semicolons MUST be used everywhere possible.
 - Use when possible :
