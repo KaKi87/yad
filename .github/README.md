@@ -25,3 +25,9 @@ From the [latest release](https://github.com/KaKi87/yad/releases/latest), downlo
 | --------------------------- | ----------------- | ----------------- |
 | **`amd64`/`x86-64`**        | `yad_*_amd64.deb` | `yad-linux-amd64` |
 | **`arm64` / `aarch64`**     | `yad_*_arm64.deb` | `yad-linux-arm64` |
+
+## Third-party resources
+
+- [yad-guide.ingk.se](https://yad-guide.ingk.se) (outdated)
+- [doc.ubuntu-fr.org/yad_yet_another_dialog](https://doc.ubuntu-fr.org/yad_yet_another_dialog) (outdated)
+- [man.archlinux.org/man/yad.1.en](https://man.archlinux.org/man/yad.1.en)
