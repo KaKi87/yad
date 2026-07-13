@@ -475,15 +475,19 @@ const
                             leftToken = tokens[index],
                             rightToken = tokens[index + 1];
 
-                        if(!sourceCode.text.slice(leftToken.range[1], rightToken.range[0]).includes('  ')
-                        || leftToken.loc.end.line < rightToken.loc.start.line)
-                            continue;
+                        if(
+                            !sourceCode.text.slice(leftToken.range[1], rightToken.range[0]).includes('  ')
+                            ||
+                            leftToken.loc.end.line < rightToken.loc.start.line
+                        ) continue;
 
-                        if(ignoreEOLComments
-                        && rightToken.type === 'Block'
-                        && (index === tokens.length - 2
-                            || rightToken.loc.end.line < tokens[index + 2].loc.start.line))
-                            continue;
+                        if(
+                            ignoreEOLComments
+                            &&
+                            rightToken.type === 'Block'
+                            &&
+                            (index === tokens.length - 2 || rightToken.loc.end.line < tokens[index + 2].loc.start.line)
+                        ) continue;
 
                         if(isPatternTernaryPadding(leftToken, rightToken))
                             continue;
@@ -584,8 +588,11 @@ const
                             return;
 
                         if(isRoot){
-                            if(question.loc.start.line === node.test.loc.end.line
-                        && question.loc.start.line === node.test.loc.start.line)
+                            if(
+                                question.loc.start.line === node.test.loc.end.line
+                                &&
+                                question.loc.start.line === node.test.loc.start.line
+                            )
                                 context.report({
                                     node: question,
                                     messageId: 'standardTestBeforeQuestion'
@@ -802,12 +809,150 @@ const
                 }
             };
         }
+    },
+
+    isLogicalOperator = operator => operator === '&&' || operator === '||',
+
+    getIfTestParens = (node, sourceCode) => {
+        const
+            ifToken = sourceCode.getFirstToken(node),
+            openParen = sourceCode.getTokenAfter(ifToken, { filter: token => token.value === '(' });
+
+        if(!openParen)
+            return null;
+
+        const closeParen = sourceCode.getTokenAfter(node.test, { filter: token => token.value === ')' });
+
+        if(!closeParen)
+            return null;
+
+        return { openParen, closeParen };
+    },
+
+    isMultilineIfLayout = (node, openParen, closeParen) =>
+        openParen.loc.end.line < node.test.loc.start.line
+        || node.test.loc.end.line < closeParen.loc.start.line
+        || node.test.loc.start.line !== node.test.loc.end.line,
+
+    getIfTestIndent = (node, openParen, sourceCode) => {
+        if(openParen.loc.end.line < node.test.loc.start.line){
+            const nextLine = sourceCode.lines[node.test.loc.start.line - 1] ?? '';
+
+            return nextLine.match(/^\s*/)?.[0] ?? '';
+        }
+
+        const
+            ifLine = sourceCode.lines[node.loc.start.line - 1] ?? '',
+            ifIndent = ifLine.match(/^\s*/)?.[0] ?? '';
+
+        return `${ifIndent}    `;
+    },
+
+    validateIfTestParenNewlines = (node, sourceCode, context) => {
+        const parens = getIfTestParens(node, sourceCode);
+
+        if(!parens)
+            return;
+
+        const { openParen, closeParen } = parens;
+
+        if(!isMultilineIfLayout(node, openParen, closeParen))
+            return;
+
+        const indent = getIfTestIndent(node, openParen, sourceCode);
+
+        if(openParen.loc.end.line >= node.test.loc.start.line)
+            context.report({
+                node: openParen,
+                messageId: 'openParenNewline',
+                fix: fixer => fixer.replaceTextRange(
+                    [openParen.range[1], node.test.range[0]],
+                    `\n${indent}`
+                )
+            });
+
+        if(node.test.loc.end.line >= closeParen.loc.start.line)
+            context.report({
+                node: closeParen,
+                messageId: 'closeParenNewline',
+                fix: fixer => fixer.replaceTextRange(
+                    [node.test.range[1], closeParen.range[0]],
+                    `\n${indent}`
+                )
+            });
+    },
+
+    isOperatorAloneOnLine = (operatorToken, sourceCode) => {
+        const line = sourceCode.lines[operatorToken.loc.start.line - 1] ?? '';
+
+        return line.trim() === operatorToken.value;
+    },
+
+    validateMultilineLogicalInIfTest = (expression, sourceCode, context) => {
+        if(expression.type !== 'LogicalExpression' || !isLogicalOperator(expression.operator))
+            return;
+
+        validateMultilineLogicalInIfTest(expression.left, sourceCode, context);
+        validateMultilineLogicalInIfTest(expression.right, sourceCode, context);
+
+        if(expression.loc.start.line === expression.loc.end.line)
+            return;
+
+        const operatorToken = sourceCode.getTokenBefore(expression.right, {
+            filter: token => token.value === expression.operator
+        });
+
+        if(!operatorToken || isOperatorAloneOnLine(operatorToken, sourceCode))
+            return;
+
+        const indent = (sourceCode.lines[expression.left.loc.start.line - 1] ?? '').match(/^\s*/)?.[0] ?? '';
+
+        context.report({
+            node: operatorToken,
+            messageId: 'operatorLine',
+            data: { operator: expression.operator },
+            fix: fixer => fixer.replaceText(
+                expression,
+                `${sourceCode.getText(expression.left)}\n${indent}${expression.operator}\n${indent}${sourceCode.getText(expression.right)}`
+            )
+        });
+    },
+
+    longIfLinebreak = {
+        meta: {
+            type: 'layout',
+            docs: {
+                description: 'Require newlines around conditions, operators, and parentheses in multiline if tests.'
+            },
+            fixable: 'code',
+            schema: [],
+            messages: {
+                operatorLine: 'Put `{{operator}}` on its own line between conditions in a multiline `if` test.',
+                openParenNewline: 'Put a newline after `(` before the first condition in a multiline `if` test.',
+                closeParenNewline: 'Put a newline after the last condition before `)` in a multiline `if` test.'
+            }
+        },
+        create: context => {
+            const sourceCode = context.sourceCode;
+
+            return {
+                IfStatement: node => {
+                    validateIfTestParenNewlines(node, sourceCode, context);
+
+                    if(node.test.loc.start.line === node.test.loc.end.line)
+                        return;
+
+                    validateMultilineLogicalInIfTest(node.test, sourceCode, context);
+                }
+            };
+        }
     };
 
 export default {
     rules: {
         'concise-arrow-body': conciseArrowBody,
         'export-top-and-kind-order': exportTopAndKindOrder,
+        'long-if-linebreak': longIfLinebreak,
         'merge-consecutive-export-const': mergeConsecutiveExportConst,
         'newline-after-var-kind': newlineAfterVarKind,
         'space-before-else-catch-do-braces': spaceBeforeElseCatchDoBraces,

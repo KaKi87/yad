@@ -99,7 +99,9 @@ const
             {
                 overrides: {
                     '?': 'ignore',
-                    ':': 'ignore'
+                    ':': 'ignore',
+                    '&&': 'ignore',
+                    '||': 'ignore'
                 }
             }
         ],
@@ -165,6 +167,7 @@ const
 
         'local/concise-arrow-body': 'error',
         'local/export-top-and-kind-order': 'error',
+        'local/long-if-linebreak': 'error',
         'local/merge-consecutive-export-const': 'error',
         'local/newline-after-var-kind': 'error',
         'local/space-before-else-catch-do-braces': 'error',

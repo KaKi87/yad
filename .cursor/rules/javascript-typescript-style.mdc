@@ -35,7 +35,9 @@ In JavaScript and TypeScript files, respect the following code style instruction
 - Spaces MUST NOT be added after opening brackets and before closing brackets in arrays and destructured arrays.
 - Spaces MUST NOT be added within parentheses.
 - Spaces MUST be added after and MUST NOT be added before commas, semicolons and colons.
-- Newlines MUST be added between multi-item import/export braces, though not necessarily for objects.
+- Newlines MUST be added between :
+  - Multi-item import/export braces, though not necessarily for objects ;
+  - Conditions and operators in long `if` statements, including after opening brackets and before closing brackets.
 - Newlines MUST NOT be added before opening braces.
 - A newline MUST be added before `else` and `catch`.
 - Parentheses MUST NOT be added around single untyped arrow function arguments.
