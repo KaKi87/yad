@@ -40,7 +40,7 @@ In JavaScript and TypeScript files, respect the following code style instruction
 - A newline MUST be added before `else` and `catch`.
 - Parentheses MUST NOT be added around single untyped arrow function arguments.
 - Braces MUST be added around `case` blocks.
-- Braces MUST NOT be added around single `if`/`else`/`for`/`while` instructions.
+- Braces MUST NOT be added around single `if`/`else`/`for`/`while` & function instructions.
 - Arrow functions MUST be prioritized over regular functions.
 - Consecutive `const` (and `export const`) & `let` (and `export let`) variables MUST be combined within a single declaration, separated by comma & newline, the first item on a newline as well.
 - Do not use `Class`.
