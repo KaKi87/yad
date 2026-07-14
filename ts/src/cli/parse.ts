@@ -1,13 +1,13 @@
-import type { FormField } from '../types/dialogs.ts';
 import { ExitCode } from '../types/exit-codes.ts';
 import type {
-    ParsedAppResult,
-    ParsedFontResult,
+    YadRunResult,
+    YadDialogResult,
     ParsedFormResult,
     ParsedListResult,
-    YadDialogResult,
-    YadRunResult
+    ParsedFontResult,
+    ParsedAppResult
 } from '../types/results.ts';
+import type { FormField } from '../types/dialogs.ts';
 
 export const
     isOk = (exitCode: number): boolean =>

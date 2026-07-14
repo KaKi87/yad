@@ -1,35 +1,11 @@
-import { createYadApp } from './app/yad-app.ts';
-import {
-    buildDialogArgs,
-    resolveStdin
-} from './cli/args.ts';
-import {
-    enrichResult,
-    parseAppOutput,
-    parseFileOutput,
-    parseFontOutput,
-    parseFormOutput,
-    parseListOutput,
-    parseStdout,
-    shouldHaveStdout
-} from './cli/parse.ts';
-import {
-    findYadBinary,
-    runYad,
-    spawnYad
-} from './cli/spawn.ts';
 import type {
-    CommonOptions,
-    CreateYadOptions
+    CreateYadOptions,
+    CommonOptions
 } from './types/common.ts';
 import type {
     DialogMode,
     DialogOptionsMap
 } from './types/dialogs.ts';
-import {
-    ExitCode,
-    StockButton
-} from './types/exit-codes.ts';
 import type {
     ParsedAppResult,
     ParsedFontResult,
@@ -43,6 +19,30 @@ import {
     validateCreateYadOptions,
     validateDialogOptions
 } from './validation/schemas.ts';
+import {
+    findYadBinary,
+    spawnYad,
+    runYad
+} from './cli/spawn.ts';
+import {
+    parseStdout,
+    parseFormOutput,
+    parseListOutput,
+    parseFileOutput,
+    parseAppOutput,
+    parseFontOutput,
+    shouldHaveStdout,
+    enrichResult
+} from './cli/parse.ts';
+import {
+    buildDialogArgs,
+    resolveStdin
+} from './cli/args.ts';
+import {
+    StockButton,
+    ExitCode
+} from './types/exit-codes.ts';
+import { createYadApp } from './app/yad-app.ts';
 
 export type YadInstance = ReturnType<typeof createYad>;
 

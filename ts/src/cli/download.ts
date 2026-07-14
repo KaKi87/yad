@@ -1,14 +1,17 @@
 import {
-    chmod, mkdir, mkdtemp, writeFile
+    mkdtemp,
+    mkdir,
+    writeFile,
+    chmod
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type {
-    DownloadYadOptions,
-    DownloadYadResult,
+    YadArch,
     GitHubRelease,
-    YadArch
+    DownloadYadOptions,
+    DownloadYadResult
 } from '../types/download.ts';
 import { DEFAULT_RELEASES_API } from '../types/download.ts';
 import { validateDownloadYadOptions } from '../validation/schemas.ts';

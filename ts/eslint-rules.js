@@ -736,6 +736,216 @@ const
         }
     },
 
+    IMPORT_GROUP_PATTERNS = [
+        /^(?:bun(?::|$)|node:|@std\/)/,
+        /^@?\w/,
+        /^\.\.(?:\/|$)/,
+        /^\.\//
+    ],
+
+    getModuleGroup = modulePath => {
+        for(let index = 0; index < IMPORT_GROUP_PATTERNS.length; index++)
+            if(IMPORT_GROUP_PATTERNS[index].test(modulePath))
+                return index;
+
+        return IMPORT_GROUP_PATTERNS.length;
+    },
+
+    getFirstUseLine = (variable, importDecl) => {
+        let first = Infinity;
+
+        for(const reference of variable.references){
+            if(reference.identifier.range[0] < importDecl.range[1])
+                continue;
+
+            const line = reference.identifier.loc.start.line;
+
+            if(line < first)
+                first = line;
+        }
+
+        return first;
+    },
+
+    getSpecifierUseLine = (importDecl, specifier, sourceCode) => {
+        for(const variable of sourceCode.getDeclaredVariables(importDecl))
+            if(variable.name === specifier.local.name)
+                return getFirstUseLine(variable, importDecl);
+
+        return Infinity;
+    },
+
+    sortSpecifiersByUsage = (importDecl, sourceCode) => {
+        const
+            leading = [],
+            named = [];
+
+        for(const specifier of importDecl.specifiers)
+            if(specifier.type === 'ImportSpecifier')
+                named.push(specifier);
+            else
+                leading.push(specifier);
+
+        const sortedNamed = [...named].sort((left, right) => {
+            const
+                leftLine = getSpecifierUseLine(importDecl, left, sourceCode),
+                rightLine = getSpecifierUseLine(importDecl, right, sourceCode);
+
+            if(leftLine !== rightLine)
+                return leftLine - rightLine;
+
+            return left.range[0] - right.range[0];
+        });
+
+        return [...leading, ...sortedNamed];
+    },
+
+    formatNamedSpecifierBlock = (importDecl, specifiers, sourceCode) => {
+        if(specifiers.length === 0)
+            return '';
+
+        if(specifiers.length === 1)
+            return `{ ${sourceCode.getText(specifiers[0])} }`;
+
+        const
+            baseIndent = (sourceCode.lines[importDecl.loc.start.line - 1] ?? '').match(/^\s*/)?.[0] ?? '',
+            innerIndent = `${baseIndent}    `;
+
+        return `{\n${specifiers.map(specifier => `${innerIndent}${sourceCode.getText(specifier)}`).join(',\n')}\n${baseIndent}}`;
+    },
+
+    formatImportDeclaration = (importDecl, specifiers, sourceCode) => {
+        const
+            source = sourceCode.getText(importDecl.source),
+            modulePath = importDecl.source.value,
+            defaultSpecifier = specifiers.find(specifier => specifier.type === 'ImportDefaultSpecifier'),
+            namespaceSpecifier = specifiers.find(specifier => specifier.type === 'ImportNamespaceSpecifier'),
+            namedSpecifiers = specifiers.filter(specifier => specifier.type === 'ImportSpecifier'),
+            prefix = importDecl.importKind === 'type' ? 'import type ' : 'import ',
+            useBracedSingleBinding = getModuleGroup(modulePath) !== 1;
+
+        if(specifiers.length === 0)
+            return `import ${source};`;
+
+        if(defaultSpecifier && !namespaceSpecifier && namedSpecifiers.length === 0){
+            if(useBracedSingleBinding)
+                return `${prefix}{ ${defaultSpecifier.local.name} } from ${source};`;
+
+            return `${prefix}${sourceCode.getText(defaultSpecifier)} from ${source};`;
+        }
+
+        if(namespaceSpecifier && !defaultSpecifier && namedSpecifiers.length === 0)
+            return `${prefix}${sourceCode.getText(namespaceSpecifier)} from ${source};`;
+
+        const
+            namedBlock = formatNamedSpecifierBlock(importDecl, namedSpecifiers, sourceCode),
+            parts = [];
+
+        if(defaultSpecifier)
+            parts.push(sourceCode.getText(defaultSpecifier));
+
+        if(namespaceSpecifier)
+            parts.push(sourceCode.getText(namespaceSpecifier));
+
+        if(namedSpecifiers.length > 0)
+            parts.push(namedBlock);
+
+        return `${prefix}${parts.join(', ')} from ${source};`;
+    },
+
+    getImportUseLine = (importDecl, sourceCode) => {
+        let first = Infinity;
+
+        for(const variable of sourceCode.getDeclaredVariables(importDecl)){
+            const line = getFirstUseLine(variable, importDecl);
+
+            if(line < first)
+                first = line;
+        }
+
+        return first;
+    },
+
+    buildExpectedImportBlock = (imports, sourceCode) => {
+        const grouped = new Map();
+
+        for(const importDecl of imports){
+            const group = getModuleGroup(importDecl.source.value);
+
+            if(!grouped.has(group))
+                grouped.set(group, []);
+
+            grouped.get(group).push(importDecl);
+        }
+
+        const
+            lines = [],
+            groups = [...grouped.keys()].sort((left, right) => left - right);
+
+        for(let groupIndex = 0; groupIndex < groups.length; groupIndex++){
+            if(groupIndex > 0)
+                lines.push('');
+
+            const sortedImports = [...grouped.get(groups[groupIndex])].sort((left, right) => {
+                const
+                    leftLine = getImportUseLine(left, sourceCode),
+                    rightLine = getImportUseLine(right, sourceCode);
+
+                if(leftLine !== rightLine)
+                    return leftLine - rightLine;
+
+                return left.range[0] - right.range[0];
+            });
+
+            for(const importDecl of sortedImports)
+                lines.push(formatImportDeclaration(importDecl, sortSpecifiersByUsage(importDecl, sourceCode), sourceCode));
+        }
+
+        return lines.join('\n');
+    },
+
+    importOrder = {
+        meta: {
+            type: 'layout',
+            docs: {
+                description: 'Require grouped imports with usage order inside each group and named specifier list.'
+            },
+            fixable: 'code',
+            schema: [],
+            messages: {
+                importOrder: 'Reorder imports to match group and usage order.'
+            }
+        },
+        create: context => {
+            const sourceCode = context.sourceCode;
+
+            return {
+                Program: program => {
+                    const imports = program.body.filter(node => node.type === 'ImportDeclaration');
+
+                    if(imports.length === 0)
+                        return;
+
+                    const
+                        expected = buildExpectedImportBlock(imports, sourceCode),
+                        actual = sourceCode.text.slice(imports[0].range[0], imports[imports.length - 1].range[1]);
+
+                    if(expected === actual)
+                        return;
+
+                    context.report({
+                        node: imports[0],
+                        messageId: 'importOrder',
+                        fix: fixer => fixer.replaceTextRange(
+                            [imports[0].range[0], imports[imports.length - 1].range[1]],
+                            expected
+                        )
+                    });
+                }
+            };
+        }
+    },
+
     ternaryLinebreak = {
         meta: {
             type: 'layout',
@@ -1174,6 +1384,7 @@ export default {
     rules: {
         'concise-arrow-body': conciseArrowBody,
         'export-top-and-kind-order': exportTopAndKindOrder,
+        'import-order': importOrder,
         'long-if-linebreak': longIfLinebreak,
         'merge-consecutive-export-const': mergeConsecutiveExportConst,
         'multiline-operator-indent': multilineOperatorIndent,

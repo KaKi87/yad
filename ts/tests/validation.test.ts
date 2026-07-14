@@ -6,8 +6,8 @@ import {
 
 import {
     validateCreateYadOptions,
-    validateDialogOptions,
-    validateDownloadYadOptions
+    validateDownloadYadOptions,
+    validateDialogOptions
 } from '../src/validation/schemas.ts';
 
 describe('validateCreateYadOptions', () => {

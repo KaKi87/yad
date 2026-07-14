@@ -1,20 +1,26 @@
 import {
-    afterEach, describe, expect, test
+    afterEach,
+    describe,
+    expect,
+    test
 } from 'bun:test';
 import {
-    mkdtemp, readFile, rm, stat
+    rm,
+    mkdtemp,
+    readFile,
+    stat
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import type { GitHubRelease } from '../src/types/download.ts';
 import {
+    resolveYadArch,
+    findReleaseAsset,
     assetNameForArch,
     downloadYad,
-    fetchLatestRelease,
-    findReleaseAsset,
-    resolveYadArch
+    fetchLatestRelease
 } from '../src/cli/download.ts';
-import type { GitHubRelease } from '../src/types/download.ts';
 
 const
     sampleRelease: GitHubRelease = {

@@ -5,12 +5,12 @@ import {
 } from 'bun:test';
 
 import {
-    parseAppOutput,
-    parseFileOutput,
-    parseFontOutput,
+    shouldHaveStdout,
     parseFormOutput,
     parseListOutput,
-    shouldHaveStdout
+    parseFontOutput,
+    parseAppOutput,
+    parseFileOutput
 } from '../src/cli/parse.ts';
 import { ExitCode } from '../src/types/exit-codes.ts';
 

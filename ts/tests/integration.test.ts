@@ -1,7 +1,7 @@
 import {
     describe,
-    expect,
-    test
+    test,
+    expect
 } from 'bun:test';
 
 import {
@@ -11,8 +11,8 @@ import {
 
 import {
     resolveTestBinary,
-    signalOk,
-    skipWithoutDisplay
+    skipWithoutDisplay,
+    signalOk
 } from './helpers.ts';
 
 const binary = resolveTestBinary() ?? '/usr/bin/yad';

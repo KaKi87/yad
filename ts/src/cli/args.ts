@@ -1,8 +1,8 @@
 import type {
-    ButtonId,
     CommonOptions,
     FileFilter,
     MimeFilter,
+    ButtonId,
     YadButton
 } from '../types/common.ts';
 import type {

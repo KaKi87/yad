@@ -1,8 +1,8 @@
-import type { CommonOptions } from '../types/common.ts';
 import type {
     FormField,
     ListColumn
 } from '../types/dialogs.ts';
+import type { CommonOptions } from '../types/common.ts';
 import { ExitCode } from '../types/exit-codes.ts';
 
 import type { YadAppBackend } from './yad-app.ts';

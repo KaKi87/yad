@@ -1,9 +1,8 @@
-import stylistic from '@stylistic/eslint-plugin';
 import tseslint from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
+import stylistic from '@stylistic/eslint-plugin';
 import preferArrowFunctions from 'eslint-plugin-prefer-arrow-functions';
-import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import unicorn from 'eslint-plugin-unicorn';
+import tsParser from '@typescript-eslint/parser';
 
 import localRules from './eslint-rules.js';
 
@@ -13,7 +12,6 @@ const
         '@stylistic': stylistic,
         local: localRules,
         'prefer-arrow-functions': preferArrowFunctions,
-        'simple-import-sort': simpleImportSort,
         unicorn
     },
 
@@ -152,17 +150,7 @@ const
                 singleReturnOnly: false
             }
         ],
-        'simple-import-sort/imports': [
-            'error',
-            {
-                groups: [
-                    ['^bun(?::|$)', '^node:', '^@std/'],
-                    ['^@?\\w'],
-                    ['^\\.\\.(?:/|$)'],
-                    ['^\\./']
-                ]
-            }
-        ],
+        'local/import-order': 'error',
         'unicorn/switch-case-braces': ['error', 'always'],
 
         'local/concise-arrow-body': 'error',
@@ -205,7 +193,8 @@ export default [
         plugins,
         rules: {
             ...rules,
-            'local/export-top-and-kind-order': 'off'
+            'local/export-top-and-kind-order': 'off',
+            'local/import-order': 'off'
         }
     }
 ];

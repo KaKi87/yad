@@ -1,31 +1,31 @@
-import type { CommonOptions } from '../types/common.ts';
 import type {
     DialogOptionsMap,
-    FormField,
-    ListColumn
+    ListColumn,
+    FormField
 } from '../types/dialogs.ts';
+import type {
+    YadDialogResult,
+    ParsedFormResult,
+    YadProcess
+} from '../types/results.ts';
+import type { CommonOptions } from '../types/common.ts';
 import {
     ExitCode,
     StockButton
 } from '../types/exit-codes.ts';
-import type {
-    ParsedFormResult,
-    YadDialogResult,
-    YadProcess
-} from '../types/results.ts';
 
 import {
-    createProgressHandle,
-    createTrayHandle,
-    type ProgressHandle,
-    type ProgressRunnerOptions,
-    type TrayHandle,
-    type TrayRunnerOptions
-} from './long-running.ts';
-import {
-    createWizard,
-    type WizardStep
+    type WizardStep,
+    createWizard
 } from './wizard.ts';
+import {
+    type ProgressRunnerOptions,
+    type ProgressHandle,
+    createProgressHandle,
+    type TrayRunnerOptions,
+    type TrayHandle,
+    createTrayHandle
+} from './long-running.ts';
 
 export type YadAppBackend = {
     getBinary: () => Promise<string>;

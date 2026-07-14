@@ -1,5 +1,5 @@
-import type { DialogOptionsMap } from '../types/dialogs.ts';
 import type { YadProcess } from '../types/results.ts';
+import type { DialogOptionsMap } from '../types/dialogs.ts';
 
 export type ProgressHandle = YadProcess & {
     setPercent: (value: number, bar?: number) => Promise<void>;

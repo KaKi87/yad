@@ -1,11 +1,11 @@
 import Joi from 'joi';
 
 import type { CreateYadOptions } from '../types/common.ts';
+import type { DownloadYadOptions } from '../types/download.ts';
 import type {
     DialogMode,
     DialogOptionsMap
 } from '../types/dialogs.ts';
-import type { DownloadYadOptions } from '../types/download.ts';
 
 export const
     validateCreateYadOptions = (options?: CreateYadOptions): CreateYadOptions => {
