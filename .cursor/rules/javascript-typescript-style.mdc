@@ -50,6 +50,7 @@ In JavaScript and TypeScript files, respect the following code style instruction
 - Do not use optional commas.
 - Semicolons MUST be used everywhere possible.
 - Strings MUST use single quotes or backticks, never double quotes.
+- Main files MUST NOT be named `index.*`, rather `main.*` or `mod.*`.
 - Use when possible :
   - Property shorthands ;
   - Destructuring ;
