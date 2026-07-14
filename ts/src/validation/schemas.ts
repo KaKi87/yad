@@ -5,12 +5,20 @@ import type {
     DialogMode,
     DialogOptionsMap
 } from '../types/dialogs.ts';
+import type { DownloadYadOptions } from '../types/download.ts';
 
 export const
     validateCreateYadOptions = (options?: CreateYadOptions): CreateYadOptions => {
         const { value, error } = createYadOptionsSchema.validate(options ?? {});
         if(error)
             throw new Error(`Invalid createYad options: ${error.message}`);
+        return value;
+    },
+
+    validateDownloadYadOptions = (options?: DownloadYadOptions): DownloadYadOptions => {
+        const { value, error } = downloadYadOptionsSchema.validate(options ?? {});
+        if(error)
+            throw new Error(`Invalid download options: ${error.message}`);
         return value;
     },
 
@@ -110,6 +118,12 @@ const
 
     createYadOptionsSchema = Joi.object({
         path: Joi.string()
+    }).unknown(false),
+
+    downloadYadOptionsSchema = Joi.object({
+        path: Joi.string(),
+        apiUrl: Joi.string().uri(),
+        arch: Joi.string().valid('amd64', 'arm64')
     }).unknown(false),
 
     formFieldSchema = Joi.object({

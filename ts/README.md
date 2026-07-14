@@ -56,6 +56,22 @@ import { createYad } from 'yad.ts';
 const yad = createYad({ path: '../src/yad' });
 ```
 
+Automatically download the latest release binary for the current CPU architecture into a temp directory:
+
+```ts
+import { createYad, downloadYad } from 'yad.ts';
+
+const { path } = await downloadYad();
+const yad = createYad({ path });
+```
+
+Or manually specify a path and/or architecture:
+
+```ts
+const { path } = await downloadYad({ path: '/tmp/yad-bin', arch: 'arm64' });
+const yad = createYad({ path });
+```
+
 ### Developing from source
 
 When working inside this repository, depend on the local package instead:
@@ -78,6 +94,18 @@ Factory that returns a `yad` instance.
 | Option | Type     | Description                                                                         |
 |--------|----------|-------------------------------------------------------------------------------------|
 | `path` | `string` | Path to the `yad` binary. Defaults to the system-wide install (`Bun.which('yad')`). |
+
+### `downloadYad(options?)`
+
+Downloads the latest `yad` binary from GitHub releases.
+
+| Option   | Type                    | Description                                                                 |
+|----------|-------------------------|-----------------------------------------------------------------------------|
+| `path`   | `string`                | Directory to place the `yad` executable in. Defaults to a temp directory.   |
+| `apiUrl` | `string`                | Releases API URL. Defaults to `https://api.github.com/repos/KaKi87/yad/releases/latest`. |
+| `arch`   | `'amd64'` \| `'arm64'`  | Override detected CPU architecture.                                         |
+
+Returns `{ path, directory, version, arch }` where `path` is the executable to pass to `createYad({ path })`.
 
 Every dialog method returns a `YadDialogResult<T>`:
 

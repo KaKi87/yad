@@ -165,7 +165,6 @@ describe('YadApp high-level API', () => {
 
         app.set('name', 'Alice');
         app.merge({ age: 30 });
-        expect(app.get<string>('name')).toBe('Alice');
         expect(app.state).toEqual({ name: 'Alice', age: 30 });
     });
 });

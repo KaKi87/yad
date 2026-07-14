@@ -14,6 +14,11 @@ export type {
     YadApp
 } from './src/app/yad-app.ts';
 export type {
+    DownloadYadOptions,
+    DownloadYadResult,
+    YadArch
+} from './src/types/download.ts';
+export type {
     CreateYadOptions,
     DialogMode,
     DialogOptionsMap,
@@ -60,3 +65,4 @@ export {
     ExitCode,
     StockButton
 } from './src/create-yad.ts';
+export { downloadYad } from './src/cli/download.ts';
