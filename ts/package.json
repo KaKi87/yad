@@ -6,8 +6,6 @@
   "scripts": {
     "test": "bun test",
     "typecheck": "tsc --noEmit",
-    "format": "bun scripts/format-style.ts",
-    "format:check": "bun scripts/format-style.ts --check",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
