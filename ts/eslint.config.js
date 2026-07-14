@@ -29,7 +29,6 @@ const
         'comma-spacing': ['error', { before: false, after: true }],
         'computed-property-spacing': ['error', 'never'],
         curly: ['error', 'multi'],
-        'eol-last': ['error', 'always'],
         'func-call-spacing': ['error', 'never'],
         indent: [
             'error',
