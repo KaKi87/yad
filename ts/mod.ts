@@ -42,6 +42,15 @@ export type {
     ListColumn,
     ListColumnType
 } from './src/types/dialogs.ts';
+export type {
+    ButtonFactory,
+    ButtonRole,
+    ButtonSet,
+    CommandButtonOptions,
+    CustomButtonOptions,
+    DefinedButton,
+    StockMeta
+} from './src/buttons/main.ts';
 export {
     buildButton,
     buildCommonArgs,
@@ -49,6 +58,14 @@ export {
     formatFormField,
     formatListColumn
 } from './src/cli/args.ts';
+export {
+    buttons,
+    isReservedExitCode,
+    primaryDismissCode,
+    primarySubmitCode,
+    printsResult,
+    stockMeta
+} from './src/buttons/main.ts';
 export {
     isCancelled,
     isEscaped,

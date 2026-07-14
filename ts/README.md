@@ -167,6 +167,46 @@ ExitCode.escape   // 252 — Escape or window close
 
 Custom buttons use even exit codes to print stdout, odd codes to exit silently (per `yad.1`). Stock button IDs are available as `StockButton.ok`, `StockButton.yes`, etc.
 
+### Named buttons — `buttons.define()`
+
+Skip hand-picking exit codes. Declare named buttons by role; the library assigns codes and maps them back from `result.exitCode`:
+
+```ts
+import { buttons, StockButton } from 'yad.ts';
+
+const dialogButtons = buttons.define({
+    clear: buttons.dismiss({ label: 'Clear History', icon: 'gtk-clear' }),
+    cancel: buttons.cancel(),
+    run: buttons.submit(StockButton.execute),
+});
+
+const result = await yad.entry({
+    editable: true,
+    buttons: dialogButtons.list,
+});
+
+switch (dialogButtons.match(result.exitCode)) {
+    case 'clear':
+        // odd code — yad did not print stdout
+        break;
+    case 'run':
+        console.log(result.value);
+        break;
+    case 'cancel':
+    default:
+        break;
+}
+```
+
+| Helper                                | Role          | Exit code                     | Prints stdout? |
+|---------------------------------------|---------------|-------------------------------|----------------|
+| `buttons.submit(StockButton.execute)` | Affirmative   | `0` (first), then `2`, `4`, … | Yes            |
+| `buttons.cancel()`                    | Cancel        | always `1`                    | No             |
+| `buttons.dismiss({ label })`          | Custom action | `3`, `5`, `7`, …              | No             |
+| `buttons.command({ command })`        | Shell command | *(dialog stays open)*         | No             |
+
+Use `dialogButtons.is('clear', result.exitCode)` for boolean checks.
+
 ### Validation
 
 All options are validated with [Joi](https://joi.dev) before spawning `yad`. Invalid options throw with a descriptive message:
