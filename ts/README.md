@@ -72,19 +72,6 @@ const { path } = await downloadYad({ path: '/tmp/yad-bin', arch: 'arm64' });
 const yad = createYad({ path });
 ```
 
-### Developing from source
-
-When working inside this repository, depend on the local package instead:
-
-```bash
-cd ts
-bun install
-```
-
-```ts
-import { createYad } from 'yad.ts';
-```
-
 ## API overview
 
 ### `createYad(options?)`
