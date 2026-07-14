@@ -86,11 +86,11 @@ Factory that returns a `yad` instance.
 
 Downloads the latest `yad` binary from GitHub releases.
 
-| Option   | Type                    | Description                                                                 |
-|----------|-------------------------|-----------------------------------------------------------------------------|
-| `path`   | `string`                | Directory to place the `yad` executable in. Defaults to a temp directory.   |
-| `apiUrl` | `string`                | Releases API URL. Defaults to `https://api.github.com/repos/KaKi87/yad/releases/latest`. |
-| `arch`   | `'amd64'` \| `'arm64'`  | Override detected CPU architecture.                                         |
+| Option   | Type                   | Description                                                                              |
+|----------|------------------------|------------------------------------------------------------------------------------------|
+| `path`   | `string`               | Directory to place the `yad` executable in. Defaults to a temp directory.                |
+| `apiUrl` | `string`               | Releases API URL. Defaults to `https://api.github.com/repos/KaKi87/yad/releases/latest`. |
+| `arch`   | `'amd64'` \| `'arm64'` | Override detected CPU architecture.                                                      |
 
 Returns `{ path, directory, version, arch }` where `path` is the executable to pass to `createYad({ path })`.
 
