@@ -4,7 +4,9 @@ Examples no. 1 to 6 are direct imports from the [*YAD Examples* page of yad-guid
 
 ## 1. Run dialog
 
-![](./1-run_dialog.webp)
+| GNOME                        | KDE                        |
+|------------------------------|----------------------------|
+| ![](1-run_dialog-gnome.webp) | ![](1-run_dialog-kde.webp) |
 
 Differences from original bash example:
 
