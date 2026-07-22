@@ -4,6 +4,7 @@
   "module": "mod.ts",
   "type": "module",
   "scripts": {
+    "generate": "bun scripts/generate/main.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

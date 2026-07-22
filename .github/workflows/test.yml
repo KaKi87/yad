@@ -1,5 +1,5 @@
 # Builds upstream source and runs the Bun/TypeScript test suite.
-# Workflow and CI scripts live on dev; dev must be the default branch.
+# Workflow and CI scripts live on the triggering ref; C sources come from SOURCE_REF.
 name: Test
 
 on:
@@ -29,7 +29,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: dev
           fetch-depth: 0
 
       - name: Prepare upstream source tree
@@ -66,6 +65,12 @@ jobs:
       - name: Install TypeScript dependencies
         working-directory: ts
         run: bun install --frozen-lockfile
+
+      - name: Check generated sources are up to date
+        working-directory: ts
+        run: |
+          bun run generate
+          git diff --exit-code -- src/generated
 
       - name: Run unit and integration tests
         working-directory: ts

@@ -164,6 +164,12 @@ const
 
 export default [
     {
+        ignores: [
+            'src/generated/**',
+            'node_modules/**'
+        ]
+    },
+    {
         files: [
             '**/*.ts'
         ],
