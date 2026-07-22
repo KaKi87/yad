@@ -9,6 +9,7 @@ import type {
     DialogMode,
     DialogOptionsMap
 } from '../types/structured.ts';
+import type { DownloadYadOptions } from '../types/download.ts';
 import { generatedModeSchemas } from '../generated/schemas.ts';
 
 export type {
@@ -23,6 +24,13 @@ export const
         const { value, error } = createYadOptionsSchema.validate(options ?? {});
         if(error)
             throw new Error(`Invalid createYad options: ${error.message}`);
+        return value;
+    },
+
+    validateDownloadYadOptions = (options?: DownloadYadOptions): DownloadYadOptions => {
+        const { value, error } = downloadYadOptionsSchema.validate(options ?? {});
+        if(error)
+            throw new Error(`Invalid download options: ${error.message}`);
         return value;
     },
 
@@ -89,6 +97,12 @@ const
 
     createYadOptionsSchema = Joi.object({
         path: Joi.string()
+    }).unknown(false),
+
+    downloadYadOptionsSchema = Joi.object({
+        path: Joi.string(),
+        apiUrl: Joi.string().uri(),
+        arch: Joi.string().valid('amd64', 'arm64')
     }).unknown(false),
 
     structuredKeysFor = (mode: DialogMode): Record<string, Joi.Schema> => {

@@ -26,6 +26,11 @@ export type {
     ExitCodeValue
 } from './src/types/results.ts';
 export type {
+    DownloadYadOptions,
+    DownloadYadResult,
+    YadArch
+} from './src/types/download.ts';
+export type {
     StockButtonId
 } from './src/generated/stock.ts';
 export type {
@@ -46,6 +51,7 @@ export {
     ExitCode,
     StockButton
 } from './src/create-yad.ts';
+export { downloadYad } from './src/cli/download.ts';
 export {
     buttons,
     isReservedExitCode,
@@ -74,6 +80,7 @@ export {
 } from './src/cli/parse.ts';
 export {
     validateCreateYadOptions,
+    validateDownloadYadOptions,
     validateDialogOptions
 } from './src/validation/main.ts';
 export {

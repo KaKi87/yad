@@ -20,15 +20,19 @@ bun run generate
 bun add yad.ts
 ```
 
-Requires a `yad` binary on `PATH`, or pass an explicit path to `createYad`.
+Requires a `yad` binary on `PATH`, or pass an explicit path to `createYad`. You can also fetch a release binary with `downloadYad`.
 
 ## Usage
 
 ```ts
-import { createYad, ExitCode, StockButton } from 'yad.ts';
+import { createYad, downloadYad, ExitCode, StockButton } from 'yad.ts';
 
 const yad = createYad();
 // or: createYad({ path: '/usr/bin/yad' })
+// or:
+// const
+//     { path } = await downloadYad(),
+//     yad = createYad({ path });
 
 const result = await yad.entry({
     title: 'Name',
@@ -39,6 +43,18 @@ const result = await yad.entry({
 if(result.ok)
     console.log(result.value);
 ```
+
+### `downloadYad(options?)`
+
+Downloads the latest `yad` binary from GitHub releases (`KaKi87/yad`).
+
+| Option   | Type                   | Description                                                               |
+|----------|------------------------|---------------------------------------------------------------------------|
+| `path`   | `string`               | Directory for the executable. Defaults to a temp directory.               |
+| `apiUrl` | `string`               | Releases API URL.                                                         |
+| `arch`   | `'amd64'` \| `'arm64'` | Override detected CPU architecture.                                       |
+
+Returns `{ path, directory, version, arch }` — pass `path` to `createYad({ path })`.
 
 ### Buttons
 
