@@ -40,6 +40,41 @@ if(result.ok)
     console.log(result.value);
 ```
 
+### Buttons
+
+Named buttons with automatic exit-code allocation (even = print result, odd = dismiss):
+
+```ts
+import {
+    createYad,
+    buttons,
+    StockButton
+} from 'yad.ts';
+
+const dialogButtons = buttons.define({
+    clear: buttons.dismiss({ label: 'Clear History', icon: 'gtk-clear' }),
+    cancel: buttons.cancel(),
+    run: buttons.submit(StockButton.execute)
+});
+
+const yad = createYad();
+const result = await yad.entry({
+    title: 'Run command',
+    buttons: dialogButtons.list
+});
+
+switch(dialogButtons.match(result.exitCode)){
+    case 'clear':
+        // …
+        break;
+    case 'run':
+        console.log(result.value);
+        break;
+}
+```
+
+`buttons.command({ label, command })` adds a non-closing command button.
+
 ### Dialog methods
 
 | Method                                                            | yad flag                            |

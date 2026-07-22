@@ -31,12 +31,29 @@ export type {
 export type {
     YadInstance
 } from './src/create-yad.ts';
+export type {
+    ButtonFactory,
+    ButtonRole,
+    ButtonSet,
+    CommandButtonOptions,
+    CustomButtonOptions,
+    DefinedButton,
+    StockMeta
+} from './src/buttons/main.ts';
 
 export {
     createYad,
     ExitCode,
     StockButton
 } from './src/create-yad.ts';
+export {
+    buttons,
+    isReservedExitCode,
+    primaryDismissCode,
+    primarySubmitCode,
+    printsResult,
+    stockMeta
+} from './src/buttons/main.ts';
 export {
     buildDialogArgs,
     buildCommonArgs,
