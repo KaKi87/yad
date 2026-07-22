@@ -20,7 +20,7 @@
     "eslint-plugin-unicorn": "^71.1.0"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^6"
   },
   "dependencies": {
     "joi": "^18.2.3"

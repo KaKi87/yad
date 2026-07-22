@@ -24,7 +24,7 @@ Install using Bun from the [npmjs.com](https://www.npmjs.com/package/yad.ts) reg
 bun add yad.ts
 ```
 
-You also need the `yad` binary itself — this package is a TypeScript wrapper, not a replacement for YAD. Install it from [here](../.github/README.md), or download a release binary with `downloadYad()`.
+You also need the `yad` binary itself — this package is a TypeScript wrapper, not a replacement for YAD. Install it from [here](../.github/README.md).
 
 ## Quick start
 
