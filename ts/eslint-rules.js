@@ -424,7 +424,18 @@ const
                 inner = current.alternate,
                 innerQuestion = getTernaryQuestionToken(inner, sourceCode);
 
-            if(!colon || !innerQuestion || innerQuestion.loc.start.line !== colon.loc.start.line)
+            if(!colon || !innerQuestion)
+                return false;
+
+            // Trailing-colon arms: `cond ? value :` then next `cond ?` on the following line.
+            // Leading-colon arms: `: cond ? value` with `:` and inner `?` on the same line.
+            const
+                trailingColonArm = colon.loc.start.line === question.loc.start.line
+                    && innerQuestion.loc.start.line === colon.loc.start.line + 1
+                    && inner.test.loc.start.line === innerQuestion.loc.start.line,
+                leadingColonArm = innerQuestion.loc.start.line === colon.loc.start.line;
+
+            if(!trailingColonArm && !leadingColonArm)
                 return false;
 
             current = inner;
@@ -461,10 +472,23 @@ const
                 sourceCode = context.sourceCode,
                 ignoreEOLComments = context.options[0]?.ignoreEOLComments ?? false,
 
-                isPatternTernaryPadding = (leftToken, rightToken) =>
-                    rightToken.value === '?'
-                    && leftToken.loc.start.line === rightToken.loc.start.line
-                    && sourceCode.lines[leftToken.loc.start.line - 1]?.includes(':');
+                isPatternTernaryPadding = (leftToken, rightToken) => {
+                    if(leftToken.loc.start.line !== rightToken.loc.start.line)
+                        return false;
+
+                    if(rightToken.value === '?')
+                        return sourceCode.lines[leftToken.loc.start.line - 1]?.includes(':')
+                            || /^\s*\S.+\?\s+\S/.test(sourceCode.lines[leftToken.loc.start.line - 1] ?? '');
+
+                    // Allow column-aligned final `:` in trailing-colon pattern-matching chains.
+                    if(rightToken.value === ':'){
+                        const line = sourceCode.lines[leftToken.loc.start.line - 1] ?? '';
+
+                        return /^\s+:\s+\S/.test(line);
+                    }
+
+                    return false;
+                };
 
             return {
                 Program: () => {
@@ -486,7 +510,9 @@ const
                             &&
                             rightToken.type === 'Block'
                             &&
-                            (index === tokens.length - 2 || rightToken.loc.end.line < tokens[index + 2].loc.start.line)
+                            index === tokens.length - 2
+                            ||
+                            rightToken.loc.end.line < tokens[index + 2].loc.start.line
                         ) continue;
 
                         if(isPatternTernaryPadding(leftToken, rightToken))
@@ -514,7 +540,8 @@ const
     tokenStartsLine = (token, sourceCode) => {
         const line = sourceCode.lines[token.loc.start.line - 1] ?? '';
 
-        return line.slice(0, token.loc.start.column - 1).trim() === '';
+        // AST `loc.column` is 0-based (ESTree).
+        return line.slice(0, token.loc.start.column).trim() === '';
     },
 
     getLogicalRoot = node => {
@@ -529,10 +556,13 @@ const
     getNullishRoot = node => {
         let current = node;
 
-        while(current.parent?.type === 'BinaryExpression'
-              && current.parent.operator === '??'
-              && current.parent.left === current)
-            current = current.parent;
+        while(
+            current.parent?.type === 'BinaryExpression'
+            &&
+            current.parent.operator === '??'
+            &&
+            current.parent.left === current
+        ) current = current.parent;
 
         return current;
     },
@@ -555,10 +585,11 @@ const
             line = sourceCode.lines[token.loc.start.line - 1] ?? '',
             leadingLength = line.match(/^\s*/)?.[0].length ?? 0;
 
-        if(leadingLength + 1 !== token.loc.start.column || token.loc.start.column === alignColumn)
+        // `loc.column` is 0-based: a token after N spaces sits at column N.
+        if(leadingLength !== token.loc.start.column || token.loc.start.column === alignColumn)
             return;
 
-        const lineStartIndex = sourceCode.getIndexFromLoc({ line: token.loc.start.line, column: 1 });
+        const lineStartIndex = sourceCode.getIndexFromLoc({ line: token.loc.start.line, column: 0 });
 
         context.report({
             node: token,
@@ -566,9 +597,179 @@ const
             data: { column: alignColumn },
             fix: fixer => fixer.replaceTextRange(
                 [lineStartIndex, lineStartIndex + leadingLength],
-                ' '.repeat(alignColumn - 1)
+                ' '.repeat(alignColumn)
             )
         });
+    },
+
+    getLineIndent = (line, sourceCode) =>
+        (sourceCode.lines[line - 1] ?? '').match(/^\s*/)?.[0].length ?? 0,
+
+    isAssignmentLikeAncestor = node => {
+        let current = node.parent;
+
+        while(current){
+            if(
+                current.type === 'VariableDeclarator'
+                ||
+                current.type === 'AssignmentExpression'
+                ||
+                current.type === 'ReturnStatement'
+            ) return true;
+
+            if(
+                current.type === 'Property'
+                ||
+                current.type === 'PropertyDefinition'
+                ||
+                current.type === 'ArrayExpression'
+                ||
+                current.type === 'CallExpression'
+                ||
+                current.type === 'NewExpression'
+                ||
+                current.type === 'LogicalExpression'
+                ||
+                current.type === 'BinaryExpression'
+                ||
+                current.type === 'ConditionalExpression'
+                ||
+                current.type === 'ArrowFunctionExpression'
+                ||
+                current.type === 'ObjectExpression'
+            ) return false;
+
+            if(
+                current.type === 'TSAsExpression'
+                ||
+                current.type === 'TSSatisfiesExpression'
+                ||
+                current.type === 'TSNonNullExpression'
+                ||
+                current.type === 'TSTypeAssertion'
+                ||
+                current.type === 'ChainExpression'
+                ||
+                current.type === 'ParenthesizedExpression'
+                ||
+                current.type === 'AwaitExpression'
+            ){
+                current = current.parent;
+                continue;
+            }
+
+            break;
+        }
+
+        return false;
+    },
+
+    isPropertyLikeAncestor = node => {
+        let current = node.parent;
+
+        while(current){
+            if(current.type === 'Property' || current.type === 'PropertyDefinition')
+                return true;
+
+            if(
+                current.type === 'VariableDeclarator'
+                ||
+                current.type === 'AssignmentExpression'
+                ||
+                current.type === 'ReturnStatement'
+                ||
+                current.type === 'ArrayExpression'
+                ||
+                current.type === 'CallExpression'
+                ||
+                current.type === 'NewExpression'
+            ) return false;
+
+            if(
+                current.type === 'TSAsExpression'
+                ||
+                current.type === 'TSSatisfiesExpression'
+                ||
+                current.type === 'TSNonNullExpression'
+                ||
+                current.type === 'TSTypeAssertion'
+                ||
+                current.type === 'ChainExpression'
+                ||
+                current.type === 'ParenthesizedExpression'
+                ||
+                current.type === 'AwaitExpression'
+            ){
+                current = current.parent;
+                continue;
+            }
+
+            break;
+        }
+
+        return false;
+    },
+
+    getOperatorAlignColumn = (root, sourceCode) => {
+        const
+            first = sourceCode.getFirstToken(root),
+            lineIndent = getLineIndent(first.loc.start.line, sourceCode);
+
+        if(tokenStartsLine(first, sourceCode))
+            return first.loc.start.column;
+
+        // Object properties keep `??` / `&&` under the key indent.
+        if(isPropertyLikeAncestor(root))
+            return lineIndent;
+
+        // Assignments / returns indent the continuation one level.
+        if(isAssignmentLikeAncestor(root))
+            return lineIndent + 4;
+
+        return lineIndent + 4;
+    },
+
+    getTernaryAlignColumn = (expression, sourceCode) => {
+        const
+            testFirst = sourceCode.getFirstToken(expression.test),
+            // Grouping parens as `key: (` / `= (` already indent the test body;
+            // anchor `?` / `:` under the opener line, not under that body.
+            testParens = getParenthesizedExpressionParens(expression.test, sourceCode),
+            anchorLine = testParens
+                ? testParens.openParen.loc.start.line
+                : testFirst.loc.start.line,
+            lineIndent = getLineIndent(anchorLine, sourceCode);
+
+        // Standard multiline ternaries always indent `?` / `:` one level
+        // under the line that holds the test (whether or not the test starts that line).
+        return lineIndent + 4;
+    },
+
+    isInControlStructureTest = node => {
+        let current = node;
+
+        while(current.parent){
+            const parent = current.parent;
+
+            if(
+                (
+                    parent.type === 'IfStatement'
+                    ||
+                    parent.type === 'WhileStatement'
+                    ||
+                    parent.type === 'DoWhileStatement'
+                )
+                &&
+                parent.test === current
+            ) return true;
+
+            if(parent.type === 'ForStatement' && parent.test === current)
+                return true;
+
+            current = parent;
+        }
+
+        return false;
     },
 
     validateMultilineLogicalAlign = (node, sourceCode, context) => {
@@ -577,8 +778,22 @@ const
         if(root.loc.start.line === root.loc.end.line)
             return;
 
+        // Grouping / control-test condition lists use operator-on-own-line layout.
+        // Call/new argument parens (`Boolean(...)`) keep normal logical alignment.
+        if(
+            root.parent?.type === 'ParenthesizedExpression'
+            ||
+            isInControlStructureTest(root)
+            ||
+            (
+                getParenthesizedExpressionParens(root, sourceCode)
+                &&
+                !isCallOrNewArgumentParens(root, sourceCode)
+            )
+        ) return;
+
         const
-            alignColumn = sourceCode.getFirstToken(root).loc.start.column,
+            alignColumn = getOperatorAlignColumn(root, sourceCode),
             visit = expression => {
                 if(expression.type !== 'LogicalExpression')
                     return;
@@ -599,14 +814,16 @@ const
                 if(operatorToken)
                     reportTokenAlign(operatorToken, alignColumn, sourceCode, context);
 
+                // Only align a RHS that continues after a trailing operator on the
+                // previous line (`foo &&\nbar`). Do not reindent parenthesized groups
+                // after `?? (` / `&& (` where the operator stays on the opener line.
                 if(
-                    expression.right.loc.start.line > expression.left.loc.end.line
+                    operatorToken
                     &&
-                    expression.right.type !== 'LogicalExpression'
-                    ||
-                    expression.right.loc.start.line !== expression.right.loc.end.line
-                )
-                    reportTokenAlign(sourceCode.getFirstToken(expression.right), alignColumn, sourceCode, context);
+                    !tokenStartsLine(operatorToken, sourceCode)
+                    &&
+                    expression.right.loc.start.line > operatorToken.loc.start.line
+                ) reportTokenAlign(sourceCode.getFirstToken(expression.right), alignColumn, sourceCode, context);
             };
 
         visit(root);
@@ -619,7 +836,7 @@ const
             return;
 
         const
-            alignColumn = sourceCode.getFirstToken(root).loc.start.column,
+            alignColumn = getOperatorAlignColumn(root, sourceCode),
             visit = expression => {
                 if(expression.type !== 'BinaryExpression' || expression.operator !== '??')
                     return;
@@ -635,27 +852,15 @@ const
                     reportTokenAlign(operatorToken, alignColumn, sourceCode, context);
 
                 if(
-                    expression.right.loc.start.line > expression.left.loc.end.line
+                    operatorToken
                     &&
-                    expression.right.type !== 'BinaryExpression'
-                    ||
-                    expression.right.loc.start.line !== expression.right.loc.end.line
-                )
-                    reportTokenAlign(sourceCode.getFirstToken(expression.right), alignColumn, sourceCode, context);
+                    !tokenStartsLine(operatorToken, sourceCode)
+                    &&
+                    expression.right.loc.start.line > operatorToken.loc.start.line
+                ) reportTokenAlign(sourceCode.getFirstToken(expression.right), alignColumn, sourceCode, context);
             };
 
         visit(root);
-    },
-
-    getTernaryAlignColumn = (expression, sourceCode) => {
-        const testFirst = sourceCode.getFirstToken(expression.test);
-
-        if(tokenStartsLine(testFirst, sourceCode))
-            return testFirst.loc.start.column;
-
-        const lineIndent = (sourceCode.lines[expression.loc.start.line - 1] ?? '').match(/^\s*/)?.[0].length ?? 0;
-
-        return lineIndent + 4 + 1;
     },
 
     validateStandardTernaryAlign = (node, sourceCode, context) => {
@@ -822,7 +1027,10 @@ const
             namespaceSpecifier = specifiers.find(specifier => specifier.type === 'ImportNamespaceSpecifier'),
             namedSpecifiers = specifiers.filter(specifier => specifier.type === 'ImportSpecifier'),
             prefix = importDecl.importKind === 'type' ? 'import type ' : 'import ',
-            useBracedSingleBinding = getModuleGroup(modulePath) !== 1;
+            // Relative/local modules normally prefer `{ name }` over default imports,
+            // but JSON modules only expose a default export.
+            useBracedSingleBinding = getModuleGroup(modulePath) !== 1
+                && !String(modulePath).endsWith('.json');
 
         if(specifiers.length === 0)
             return `import ${source};`;
@@ -969,7 +1177,8 @@ const
                 validatePatternMatching = root => {
                     const
                         question = getTernaryQuestionToken(root, sourceCode),
-                        questionColumn = question.loc.start.column;
+                        questionColumn = question.loc.start.column,
+                        testColumn = root.test.loc.start.column;
                     let current = root;
 
                     while(current.alternate?.type === 'ConditionalExpression'){
@@ -977,14 +1186,27 @@ const
                             colon = getTernaryColonToken(current, sourceCode),
                             inner = current.alternate,
                             innerQuestion = getTernaryQuestionToken(inner, sourceCode),
-                            middleColonColumn = inner.test.loc.start.column - 2;
+                            trailingColonArm = colon.loc.start.line === getTernaryQuestionToken(current, sourceCode)?.loc.start.line
+                                && innerQuestion.loc.start.line !== colon.loc.start.line;
 
-                        if(colon.loc.start.column !== middleColonColumn)
-                            context.report({
-                                node: colon,
-                                messageId: 'patternColonAlign',
-                                data: { column: middleColonColumn }
-                            });
+                        if(trailingColonArm){
+                            if(inner.test.loc.start.column !== testColumn)
+                                context.report({
+                                    node: inner.test,
+                                    messageId: 'patternQuestionAlign',
+                                    data: { column: testColumn }
+                                });
+                        }
+                        else {
+                            const middleColonColumn = inner.test.loc.start.column - 2;
+
+                            if(colon.loc.start.column !== middleColonColumn)
+                                context.report({
+                                    node: colon,
+                                    messageId: 'patternColonAlign',
+                                    data: { column: middleColonColumn }
+                                });
+                        }
 
                         if(innerQuestion.loc.start.column !== questionColumn)
                             context.report({
@@ -1021,11 +1243,10 @@ const
                                 question.loc.start.line === node.test.loc.end.line
                                 &&
                                 question.loc.start.line === node.test.loc.start.line
-                            )
-                                context.report({
-                                    node: question,
-                                    messageId: 'standardTestBeforeQuestion'
-                                });
+                            ) context.report({
+                                node: question,
+                                messageId: 'standardTestBeforeQuestion'
+                            });
 
                             else if(node.test.loc.end.line >= question.loc.start.line)
                                 context.report({
@@ -1242,10 +1463,44 @@ const
 
     isLogicalOperator = operator => operator === '&&' || operator === '||',
 
-    getIfTestParens = (node, sourceCode) => {
-        const
-            ifToken = sourceCode.getFirstToken(node),
-            openParen = sourceCode.getTokenAfter(ifToken, { filter: token => token.value === '(' });
+    hasLogicalConditionList = node => {
+        if(!node)
+            return false;
+
+        if(node.type === 'LogicalExpression' && isLogicalOperator(node.operator))
+            return true;
+
+        if(node.type === 'UnaryExpression')
+            return hasLogicalConditionList(node.argument);
+
+        if(node.type === 'ParenthesizedExpression')
+            return hasLogicalConditionList(node.expression);
+
+        if(
+            node.type === 'TSAsExpression'
+            ||
+            node.type === 'TSSatisfiesExpression'
+            ||
+            node.type === 'TSNonNullExpression'
+            ||
+            node.type === 'TSTypeAssertion'
+            ||
+            node.type === 'ChainExpression'
+        ) return hasLogicalConditionList(node.expression ?? node.argument);
+
+        return false;
+    },
+
+    getControlTestParens = (node, sourceCode) => {
+        const keywordToken = sourceCode.getFirstToken(node);
+
+        if(!keywordToken)
+            return null;
+
+        // `do ... while(` — the test parens follow `while`, not `do`.
+        const openParen = node.type === 'DoWhileStatement'
+            ? sourceCode.getTokenBefore(node.test, { filter: token => token.value === '(' })
+            : sourceCode.getTokenAfter(keywordToken, { filter: token => token.value === '(' });
 
         if(!openParen)
             return null;
@@ -1258,57 +1513,236 @@ const
         return { openParen, closeParen };
     },
 
-    isMultilineIfLayout = (node, openParen, closeParen) =>
-        openParen.loc.end.line < node.test.loc.start.line
-        || node.test.loc.end.line < closeParen.loc.start.line
-        || node.test.loc.start.line !== node.test.loc.end.line,
-
-    getIfTestIndent = (node, openParen, sourceCode) => {
-        if(openParen.loc.end.line < node.test.loc.start.line){
-            const nextLine = sourceCode.lines[node.test.loc.start.line - 1] ?? '';
-
-            return nextLine.match(/^\s*/)?.[0] ?? '';
-        }
-
+    getParenthesizedExpressionParens = (node, sourceCode) => {
+        // typescript-eslint omits ParenthesizedExpression nodes; detect via tokens.
         const
-            ifLine = sourceCode.lines[node.loc.start.line - 1] ?? '',
-            ifIndent = ifLine.match(/^\s*/)?.[0] ?? '';
+            openParen = sourceCode.getTokenBefore(node),
+            closeParen = sourceCode.getTokenAfter(node);
 
-        return `${ifIndent}    `;
+        if(!openParen || openParen.value !== '(' || !closeParen || closeParen.value !== ')')
+            return null;
+
+        return { openParen, closeParen, expression: node };
     },
 
-    validateIfTestParenNewlines = (node, sourceCode, context) => {
-        const parens = getIfTestParens(node, sourceCode);
+    // True when this node's wrapping `(` / `)` are call/new argument parens
+    // (`Boolean(...)`, `describe.skipIf(...)`, `new Foo(...)`), not grouping or `if`/`while`.
+    isCallOrNewArgumentParens = (node, sourceCode) => {
+        const parens = getParenthesizedExpressionParens(node, sourceCode);
 
         if(!parens)
+            return false;
+
+        let current = node;
+
+        while(current.parent){
+            const parent = current.parent;
+
+            if(
+                (
+                    parent.type === 'CallExpression'
+                    ||
+                    parent.type === 'NewExpression'
+                    ||
+                    parent.type === 'OptionalCallExpression'
+                )
+                &&
+                parent.arguments?.includes(current)
+            ){
+                const afterCallee = sourceCode.getTokenAfter(parent.callee, {
+                    filter: token => token.value === '('
+                });
+
+                return afterCallee?.range[0] === parens.openParen.range[0];
+            }
+
+            if(
+                parent.type === 'LogicalExpression'
+                ||
+                parent.type === 'BinaryExpression'
+                ||
+                parent.type === 'ConditionalExpression'
+                ||
+                parent.type === 'UnaryExpression'
+                ||
+                parent.type === 'AssignmentExpression'
+                ||
+                parent.type === 'VariableDeclarator'
+                ||
+                parent.type === 'ReturnStatement'
+                ||
+                parent.type === 'Property'
+                ||
+                parent.type === 'ArrayExpression'
+                ||
+                parent.type === 'ArrowFunctionExpression'
+            ) return false;
+
+            if(
+                parent.type === 'TSAsExpression'
+                ||
+                parent.type === 'TSSatisfiesExpression'
+                ||
+                parent.type === 'TSNonNullExpression'
+                ||
+                parent.type === 'TSTypeAssertion'
+                ||
+                parent.type === 'ChainExpression'
+                ||
+                parent.type === 'AwaitExpression'
+                ||
+                parent.type === 'ParenthesizedExpression'
+            ){
+                current = parent;
+                continue;
+            }
+
+            break;
+        }
+
+        return false;
+    },
+
+    getConditionInnerIndent = (openParen, sourceCode) => {
+        const
+            openLine = sourceCode.lines[openParen.loc.start.line - 1] ?? '',
+            openIndent = openLine.match(/^\s*/)?.[0] ?? '';
+
+        return `${openIndent}    `;
+    },
+
+    formatLogicalConditionList = (expression, indent, sourceCode) => {
+        const formatChild = child => {
+            const nestedParens = getParenthesizedExpressionParens(child, sourceCode);
+
+            if(nestedParens){
+                const innerIndent = `${indent}    `;
+
+                return `(\n${innerIndent}${formatLogicalConditionList(child, innerIndent, sourceCode)}\n${indent})`;
+            }
+
+            return formatLogicalConditionList(child, indent, sourceCode);
+        };
+
+        if(expression.type === 'LogicalExpression' && isLogicalOperator(expression.operator))
+            return `${formatChild(expression.left)}\n${indent}${expression.operator}\n${indent}${formatChild(expression.right)}`;
+
+        if(expression.type === 'UnaryExpression' && expression.prefix){
+            const argument = expression.argument.type === 'LogicalExpression'
+                || getParenthesizedExpressionParens(expression.argument, sourceCode)
+                ? formatChild(expression.argument)
+                : sourceCode.getText(expression.argument);
+
+            return `${expression.operator}${argument}`;
+        }
+
+        return sourceCode.getText(expression);
+    },
+
+    validateConditionParenLayout = ({
+        openParen,
+        closeParen,
+        expression,
+        sourceCode,
+        context,
+        body = null,
+        requireAlways = false
+    }) => {
+        if(!hasLogicalConditionList(expression))
             return;
 
-        const { openParen, closeParen } = parens;
+        const
+            isMultiline = openParen.loc.end.line < expression.loc.start.line
+                || expression.loc.end.line < closeParen.loc.start.line
+                || expression.loc.start.line !== expression.loc.end.line;
 
-        if(!isMultilineIfLayout(node, openParen, closeParen))
+        if(!requireAlways && !isMultiline)
             return;
 
-        const indent = getIfTestIndent(node, openParen, sourceCode);
+        const
+            indent = getConditionInnerIndent(openParen, sourceCode),
+            closeIndent = indent.endsWith('    ') ? indent.slice(0, -4) : indent,
+            openNeedsNewline = openParen.loc.end.line >= expression.loc.start.line,
+            closeNeedsNewline = expression.loc.end.line >= closeParen.loc.start.line,
+            needsOperatorLines = (() => {
+                let needed = false;
 
-        if(openParen.loc.end.line >= node.test.loc.start.line)
-            context.report({
-                node: openParen,
-                messageId: 'openParenNewline',
-                fix: fixer => fixer.replaceTextRange(
-                    [openParen.range[1], node.test.range[0]],
-                    `\n${indent}`
-                )
-            });
+                const visit = node => {
+                    if(node.type === 'LogicalExpression' && isLogicalOperator(node.operator)){
+                        visit(node.left);
+                        visit(node.right);
 
-        if(node.test.loc.end.line >= closeParen.loc.start.line)
-            context.report({
-                node: closeParen,
-                messageId: 'closeParenNewline',
-                fix: fixer => fixer.replaceTextRange(
-                    [node.test.range[1], closeParen.range[0]],
-                    `\n${indent}`
-                )
-            });
+                        const operatorToken = sourceCode.getTokenBefore(node.right, {
+                            filter: token => token.value === node.operator
+                        });
+
+                        if(
+                            !operatorToken
+                            ||
+                            !isOperatorAloneOnLine(operatorToken, sourceCode)
+                            ||
+                            operatorToken.loc.start.line <= node.left.loc.end.line
+                            ||
+                            operatorToken.loc.end.line >= node.right.loc.start.line
+                        ) needed = true;
+
+                        return;
+                    }
+
+                    if(node.type === 'ParenthesizedExpression')
+                        visit(node.expression);
+                    else if(node.type === 'UnaryExpression')
+                        visit(node.argument);
+                };
+
+                visit(expression);
+                return needed;
+            })(),
+            bodyNeedsSameLine = Boolean(
+                body
+                &&
+                body.type !== 'BlockStatement'
+                &&
+                closeParen.loc.start.line !== body.loc.start.line
+            );
+
+        if(!openNeedsNewline && !closeNeedsNewline && !needsOperatorLines && !bodyNeedsSameLine)
+            return;
+
+        let messageId = 'rewriteCondition';
+
+        if(openNeedsNewline)
+            messageId = 'openParenNewline';
+        else if(closeNeedsNewline)
+            messageId = 'closeParenNewline';
+        else if(needsOperatorLines)
+            messageId = 'operatorLine';
+        else if(bodyNeedsSameLine)
+            messageId = 'bodySameLine';
+
+        context.report({
+            node: expression,
+            messageId,
+            fix: fixer => {
+                const
+                    formatted = formatLogicalConditionList(expression, indent, sourceCode),
+                    parens = `(\n${indent}${formatted}\n${closeIndent})`;
+
+                if(body && body.type !== 'BlockStatement'){
+                    const bodyText = sourceCode.getText(body).replace(/^\s+/, '');
+
+                    return fixer.replaceTextRange(
+                        [openParen.range[0], body.range[1]],
+                        `${parens} ${bodyText}`
+                    );
+                }
+
+                return fixer.replaceTextRange(
+                    [openParen.range[0], closeParen.range[1]],
+                    parens
+                );
+            }
+        });
     },
 
     isOperatorAloneOnLine = (operatorToken, sourceCode) => {
@@ -1317,51 +1751,20 @@ const
         return line.trim() === operatorToken.value;
     },
 
-    validateMultilineLogicalInIfTest = (expression, sourceCode, context) => {
-        if(isInsideParentheses(expression))
-            return;
-
-        if(expression.type !== 'LogicalExpression' || !isLogicalOperator(expression.operator))
-            return;
-
-        validateMultilineLogicalInIfTest(expression.left, sourceCode, context);
-        validateMultilineLogicalInIfTest(expression.right, sourceCode, context);
-
-        if(expression.loc.start.line === expression.loc.end.line)
-            return;
-
-        const operatorToken = sourceCode.getTokenBefore(expression.right, {
-            filter: token => token.value === expression.operator
-        });
-
-        if(!operatorToken || isOperatorAloneOnLine(operatorToken, sourceCode))
-            return;
-
-        const indent = (sourceCode.lines[expression.left.loc.start.line - 1] ?? '').match(/^\s*/)?.[0] ?? '';
-
-        context.report({
-            node: operatorToken,
-            messageId: 'operatorLine',
-            data: { operator: expression.operator },
-            fix: fixer => fixer.replaceText(
-                expression,
-                `${sourceCode.getText(expression.left)}\n${indent}${expression.operator}\n${indent}${sourceCode.getText(expression.right)}`
-            )
-        });
-    },
-
     longIfLinebreak = {
         meta: {
             type: 'layout',
             docs: {
-                description: 'Require newlines around conditions, operators, and parentheses in multiline if tests.'
+                description: 'Require parenthesized condition lists to use newlines around parentheses and logical operators, with a brace-less body on the same line as `)`.'
             },
             fixable: 'code',
             schema: [],
             messages: {
-                operatorLine: 'Put `{{operator}}` on its own line between conditions in a multiline `if` test.',
-                openParenNewline: 'Put a newline after `(` before the first condition in a multiline `if` test.',
-                closeParenNewline: 'Put a newline after the last condition before `)` in a multiline `if` test.'
+                operatorLine: 'Put each `&&` / `||` on its own line between conditions inside parentheses.',
+                openParenNewline: 'Put a newline after `(` before the first condition.',
+                closeParenNewline: 'Put a newline after the last condition before `)`.',
+                bodySameLine: 'Put the single brace-less statement on the same line as the closing `)`.',
+                rewriteCondition: 'Rewrite this parenthesized condition list with newlines around parentheses and operators.'
             }
         },
         create: context => {
@@ -1369,12 +1772,121 @@ const
 
             return {
                 IfStatement: node => {
-                    validateIfTestParenNewlines(node, sourceCode, context);
+                    const parens = getControlTestParens(node, sourceCode);
 
-                    if(node.test.loc.start.line === node.test.loc.end.line)
+                    if(!parens)
                         return;
 
-                    validateMultilineLogicalInIfTest(node.test, sourceCode, context);
+                    validateConditionParenLayout({
+                        openParen: parens.openParen,
+                        closeParen: parens.closeParen,
+                        expression: node.test,
+                        body: node.consequent,
+                        sourceCode,
+                        context
+                    });
+                },
+
+                WhileStatement: node => {
+                    const parens = getControlTestParens(node, sourceCode);
+
+                    if(!parens)
+                        return;
+
+                    validateConditionParenLayout({
+                        openParen: parens.openParen,
+                        closeParen: parens.closeParen,
+                        expression: node.test,
+                        body: node.body,
+                        sourceCode,
+                        context
+                    });
+                },
+
+                DoWhileStatement: node => {
+                    const parens = getControlTestParens(node, sourceCode);
+
+                    if(!parens)
+                        return;
+
+                    validateConditionParenLayout({
+                        openParen: parens.openParen,
+                        closeParen: parens.closeParen,
+                        expression: node.test,
+                        sourceCode,
+                        context
+                    });
+                },
+
+                ParenthesizedExpression: node => {
+                    // Kept for parsers that emit this node; typescript-eslint usually does not.
+                    if(!hasLogicalConditionList(node.expression))
+                        return;
+
+                    if(
+                        node.parent?.type === 'IfStatement'
+                        ||
+                        node.parent?.type === 'WhileStatement'
+                        ||
+                        node.parent?.type === 'DoWhileStatement'
+                        ||
+                        node.parent?.type === 'ForStatement'
+                    ) return;
+
+                    if(
+                        node.parent?.type === 'CallExpression'
+                        ||
+                        node.parent?.type === 'NewExpression'
+                        ||
+                        node.parent?.type === 'OptionalCallExpression'
+                    ) return;
+
+                    const
+                        openParen = sourceCode.getFirstToken(node),
+                        closeParen = sourceCode.getLastToken(node);
+
+                    if(!openParen || !closeParen)
+                        return;
+
+                    validateConditionParenLayout({
+                        openParen,
+                        closeParen,
+                        expression: node.expression,
+                        sourceCode,
+                        context,
+                        requireAlways: true
+                    });
+                },
+
+                LogicalExpression: node => {
+                    // Only the root of a && / || chain.
+                    if(node.parent?.type === 'LogicalExpression')
+                        return;
+
+                    if(!isLogicalOperator(node.operator))
+                        return;
+
+                    // Control-structure tests use If/While/DoWhile visitors.
+                    if(isInControlStructureTest(node))
+                        return;
+
+                    const parens = getParenthesizedExpressionParens(node, sourceCode);
+
+                    if(!parens)
+                        return;
+
+                    // Ignore `Boolean(...)`, `expect(...)`, `describe.skipIf(...)`, etc.
+                    if(isCallOrNewArgumentParens(node, sourceCode))
+                        return;
+
+                    validateConditionParenLayout({
+                        openParen: parens.openParen,
+                        closeParen: parens.closeParen,
+                        expression: node,
+                        sourceCode,
+                        context,
+                        requireAlways: true
+                    });
                 }
             };
         }
