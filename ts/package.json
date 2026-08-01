@@ -14,12 +14,11 @@
     "@types/bun": "latest",
     "@typescript-eslint/eslint-plugin": "latest",
     "@typescript-eslint/parser": "latest",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "eslint": "latest",
     "eslint-plugin-prefer-arrow-functions": "^3.10.1",
-    "eslint-plugin-unicorn": "^71.1.0"
-  },
-  "peerDependencies": {
-    "typescript": "^6"
+    "eslint-plugin-unicorn": "^71.1.0",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "joi": "^18.2.3"
