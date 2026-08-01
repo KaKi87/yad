@@ -78,5 +78,5 @@ jobs:
           YAD_BIN: ${{ github.workspace }}/src/yad
           DISPLAY: :99
         run: |
-          bun run typecheck
+          bun run lint
           xvfb-run -a bun test

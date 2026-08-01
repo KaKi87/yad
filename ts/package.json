@@ -6,8 +6,7 @@
   "scripts": {
     "generate": "bun scripts/generate/main.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "tsc --noEmit && eslint .",
     "lint:fix": "eslint . --fix"
   },
   "devDependencies": {

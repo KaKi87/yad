@@ -279,8 +279,7 @@ await proc.wait();
 bun install
 bun run generate      # refresh src/generated from ../data/yad.1
 bun test              # unit + integration tests (needs DISPLAY)
-bun run typecheck     # tsc --noEmit (editor / CI type-check only)
-bun run lint          # ESLint
+bun run lint          # tsc --noEmit + ESLint
 bun run lint:fix      # ESLint with auto-fix
 ```
 
